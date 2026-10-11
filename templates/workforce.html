@@ -474,16 +474,40 @@
             hours: 26 + Math.round(Math.random() * 12),
         }));
 
-        function initWFData() {
-            if (!localStorage.getItem(WF_OPERATORS_KEY))  localStorage.setItem(WF_OPERATORS_KEY,  JSON.stringify(SAMPLE_OPERATORS));
-            if (!localStorage.getItem(WF_ATTENDANCE_KEY)) localStorage.setItem(WF_ATTENDANCE_KEY, JSON.stringify(SAMPLE_ATTENDANCE));
-            if (!localStorage.getItem(WF_SHIFTS_KEY))     localStorage.setItem(WF_SHIFTS_KEY,     JSON.stringify(SAMPLE_SHIFTS));
+        let wfCache = { operators: [], attendance: [], shifts: [] };
+
+        async function initWFData() {
+            try {
+                const data = await App.getWorkforce();
+                if (data && data.operators && data.operators.length > 0) {
+                    wfCache = data;
+                } else {
+                    wfCache = {
+                        operators: SAMPLE_OPERATORS,
+                        attendance: SAMPLE_ATTENDANCE,
+                        shifts: SAMPLE_SHIFTS
+                    };
+                }
+            } catch(e) {
+                console.warn('Workforce API fallback:', e);
+                wfCache = {
+                    operators: SAMPLE_OPERATORS,
+                    attendance: SAMPLE_ATTENDANCE,
+                    shifts: SAMPLE_SHIFTS
+                };
+            }
         }
-        function getOperators()   { return JSON.parse(localStorage.getItem(WF_OPERATORS_KEY)  || '[]'); }
-        function getAttendance()  { return JSON.parse(localStorage.getItem(WF_ATTENDANCE_KEY) || '[]'); }
-        function getShifts()      { return JSON.parse(localStorage.getItem(WF_SHIFTS_KEY)     || '[]'); }
-        function saveAttendance(d){ localStorage.setItem(WF_ATTENDANCE_KEY, JSON.stringify(d)); }
-        function saveShifts(d)    { localStorage.setItem(WF_SHIFTS_KEY, JSON.stringify(d)); }
+        function getOperators()   { return wfCache.operators || []; }
+        function getAttendance()  { return wfCache.attendance || []; }
+        function getShifts()      { return wfCache.shifts || []; }
+        async function saveAttendance(d){
+            wfCache.attendance = d;
+            try { await App.saveAttendance(d); } catch(e) { console.warn('Save attendance remote error:', e); }
+        }
+        async function saveShifts(d) {
+            wfCache.shifts = d;
+            try { await App.saveShifts(d); } catch(e) { console.warn('Save shifts remote error:', e); }
+        }
 
         /* ---- Tab Switch ---- */
         function switchTab(name, btn) {
@@ -880,8 +904,8 @@
         }
 
         /* ---- Init ---- */
-        document.addEventListener('DOMContentLoaded', () => {
-            initWFData();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initWFData();
             renderAttendance();
             renderAttendanceChart();
             updateTime();

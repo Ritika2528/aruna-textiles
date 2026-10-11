@@ -405,20 +405,27 @@
             { date:'2026-07-02', material:'Yarn',   type:'Silk Blend Yarn',   consumed:140, machine:'M003' },
         ];
 
-        function initInventoryData() {
-            if (!localStorage.getItem(INV_COTTON_KEY))
-                localStorage.setItem(INV_COTTON_KEY, JSON.stringify(SAMPLE_COTTON));
-            if (!localStorage.getItem(INV_YARN_KEY))
-                localStorage.setItem(INV_YARN_KEY, JSON.stringify(SAMPLE_YARN));
-            if (!localStorage.getItem(INV_CONSUMPTION_KEY))
-                localStorage.setItem(INV_CONSUMPTION_KEY, JSON.stringify(SAMPLE_CONSUMPTION));
+        let inventoryCache = { cotton: [], yarn: [], consumption: [] };
+
+        async function initInventoryData() {
+            try {
+                inventoryCache = await App.getInventory();
+                if (!inventoryCache.cotton) inventoryCache.cotton = [];
+                if (!inventoryCache.yarn) inventoryCache.yarn = [];
+                if (!inventoryCache.consumption) inventoryCache.consumption = [];
+            } catch (e) {
+                console.warn('Inventory API fallback:', e);
+                inventoryCache = {
+                    cotton: SAMPLE_COTTON,
+                    yarn: SAMPLE_YARN,
+                    consumption: SAMPLE_CONSUMPTION
+                };
+            }
         }
 
-        function getCotton()      { return JSON.parse(localStorage.getItem(INV_COTTON_KEY) || '[]'); }
-        function getYarn()        { return JSON.parse(localStorage.getItem(INV_YARN_KEY)   || '[]'); }
-        function getConsumption() { return JSON.parse(localStorage.getItem(INV_CONSUMPTION_KEY) || '[]'); }
-        function saveCotton(d)    { localStorage.setItem(INV_COTTON_KEY, JSON.stringify(d)); }
-        function saveYarn(d)      { localStorage.setItem(INV_YARN_KEY,   JSON.stringify(d)); }
+        function getCotton()      { return inventoryCache.cotton || []; }
+        function getYarn()        { return inventoryCache.yarn || []; }
+        function getConsumption() { return inventoryCache.consumption || []; }
 
         /* ---- Status helpers ---- */
         function getStatus(stock, minLevel) {
@@ -548,13 +555,18 @@
         window.addEventListener('themechange', () => { renderChart(); });
 
         /* ---- Delete ---- */
-        function deleteItem(kind, idx) {
+        async function deleteItem(kind, idx) {
             if (!confirm('Delete this inventory item?')) return;
-            if (kind === 'cotton') {
-                const d = getCotton(); d.splice(idx, 1); saveCotton(d);
-            } else {
-                const d = getYarn(); d.splice(idx, 1); saveYarn(d);
+            const list = kind === 'cotton' ? getCotton() : getYarn();
+            const target = list[idx];
+            if (target && target.id) {
+                try {
+                    await App.deleteInventoryItem(kind, target.id);
+                } catch(e) {
+                    console.warn('Delete item remote error:', e);
+                }
             }
+            await initInventoryData();
             renderAll();
         }
 
@@ -571,7 +583,7 @@
         function closeAddModal() {
             document.getElementById('addStockModal').style.display = 'none';
         }
-        function submitAddStock(e) {
+        async function submitAddStock(e) {
             e.preventDefault();
             const type     = document.getElementById('stockType').value;
             const itemType = document.getElementById('itemType').value.trim();
@@ -579,18 +591,29 @@
             const minLevel = parseInt(document.getElementById('itemMinLevel').value);
             const location = document.getElementById('itemLocation').value.trim() || 'Warehouse A';
 
-            if (type === 'cotton') {
-                const d = getCotton();
-                const id = 'COT' + String(d.length + 1).padStart(3, '0');
-                d.push({ id, type: itemType, stock: qty, minLevel, location });
-                saveCotton(d);
-            } else {
-                const d = getYarn();
-                const id = 'YRN' + String(d.length + 1).padStart(3, '0');
-                d.push({ id, type: itemType, stock: qty, minLevel, location });
-                saveYarn(d);
+            const list = type === 'cotton' ? getCotton() : getYarn();
+            const prefix = type === 'cotton' ? 'COT' : 'YRN';
+            const id = prefix + String(list.length + 1).padStart(3, '0');
+
+            const newItem = {
+                category: type,
+                id: id,
+                type: itemType,
+                stock: qty,
+                minLevel: minLevel,
+                location: location,
+                status: qty < minLevel ? 'Low Stock' : 'In Stock'
+            };
+
+            try {
+                await App.addInventoryItem(newItem);
+                App.triggerNotification("Inventory Updated", `Added ${qty} kg of ${itemType} to ${location}.`, "success");
+            } catch(err) {
+                console.warn('Add inventory item error:', err);
             }
+
             closeAddModal();
+            await initInventoryData();
             renderAll();
         }
 
@@ -603,8 +626,8 @@
         }
 
         /* ---- Init ---- */
-        document.addEventListener('DOMContentLoaded', () => {
-            initInventoryData();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initInventoryData();
             renderAll();
             updateTime();
             setInterval(updateTime, 1000);

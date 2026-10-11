@@ -92,31 +92,8 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>M001</strong></td>
-                            <td>Cotton</td>
-                            <td>1200</td>
-                            <td>Kg</td>
-                            <td>Lakshmi Mills</td>
-                            <td><span class="status completed">In Stock</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>M002</strong></td>
-                            <td>Polyester</td>
-                            <td>800</td>
-                            <td>Kg</td>
-                            <td>Global Spun</td>
-                            <td><span class="status pending">Low Stock</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>M003</strong></td>
-                            <td>Yarn Spools</td>
-                            <td>0</td>
-                            <td>Kg</td>
-                            <td>RK Mills</td>
-                            <td><span class="status incomplete">Out of Stock</span></td>
-                        </tr>
+                    <tbody id="stockTableBody">
+                        <!-- Populated dynamically from database -->
                     </tbody>
                 </table>
             </div>
@@ -125,5 +102,38 @@
 </div>
 
 <script src="../static/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    App.requireLogin();
+    const tbody = document.getElementById('stockTableBody');
+    try {
+        const inv = await App.getInventory();
+        const items = [...(inv.cotton || []), ...(inv.yarn || [])];
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No inventory items found.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        items.forEach(item => {
+            const isLow = (item.stock || 0) <= (item.minLevel || 0);
+            const statusCls = isLow ? 'incomplete' : 'completed';
+            const statusText = isLow ? 'Low Stock' : 'In Stock';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${item.id || '—'}</strong></td>
+                <td>${item.type || 'Raw Material'}</td>
+                <td>${(item.stock || 0).toLocaleString()}</td>
+                <td>Kg</td>
+                <td>${item.location || 'Warehouse A'}</td>
+                <td><span class="status ${statusCls}">${statusText}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        console.error('Failed to load stock from DB:', e);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Failed to connect to database.</td></tr>';
+    }
+});
+</script>
 </body>
 </html>

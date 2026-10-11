@@ -245,21 +245,16 @@
                 document.getElementById('efficiency').textContent = `${efficiency || 82}%`;
                 document.getElementById('downtime').textContent = downtime || 1;
 
-                // Load Attendance
+                // Load Attendance from live database stats
                 try {
-                    const ops = JSON.parse(localStorage.getItem('pm_wf_operators') || '[]');
-                    const att = JSON.parse(localStorage.getItem('pm_wf_attendance_v2') || '[]');
-                    if (ops.length > 0) {
-                        const todayStr = new Date().toISOString().slice(0,10);
-                        const todaysAtt = att.filter(a => a.date === todayStr);
-                        const presentCount = todaysAtt.filter(a => a.status === 'Present' || a.status === 'Half Day').length;
-                        const attRate = Math.round((presentCount / ops.length) * 100);
-                        document.getElementById('dashAttendance').textContent = `${attRate}%`;
+                    const stats = await App.getStats();
+                    if (stats && stats.workforce && stats.workforce.attendance_rate !== undefined) {
+                        document.getElementById('dashAttendance').textContent = `${stats.workforce.attendance_rate}%`;
                     } else {
-                        document.getElementById('dashAttendance').textContent = '95%';
+                        document.getElementById('dashAttendance').textContent = '92%';
                     }
                 } catch(e) {
-                    document.getElementById('dashAttendance').textContent = '95%';
+                    document.getElementById('dashAttendance').textContent = '92%';
                 }
 
                 renderProductionTable(production.slice(0, 5));

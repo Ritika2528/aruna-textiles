@@ -636,6 +636,177 @@ def update_sale(sale_id):
         return jsonify({"error": "Record not found"}), 404
     return jsonify({"status": "updated"})
 
+# ── Suppliers API ─────────────────────────────────────────────────────────────
+@app.route('/api/suppliers', methods=['GET'])
+@login_required
+def get_suppliers():
+    docs = _clean(list(get_collection('suppliers').find()))
+    return jsonify(docs)
+
+@app.route('/api/suppliers', methods=['POST'])
+@login_required
+def add_supplier():
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "No data provided"}), 400
+    if not sanitize_keys(data):
+        return jsonify({"error": "Invalid payload format"}), 400
+
+    col = get_collection('suppliers')
+    data["id"] = _next_id('suppliers')
+    data.setdefault("created_at", time.strftime("%Y-%m-%d"))
+    col.insert_one(dict(data))
+    return jsonify(_clean(data)), 201
+
+@app.route('/api/suppliers/<int:supp_id>', methods=['DELETE'])
+@login_required
+def delete_supplier(supp_id):
+    res = get_collection('suppliers').delete_one({"id": supp_id})
+    if res.deleted_count == 0:
+        return jsonify({"error": "Supplier not found"}), 404
+    return jsonify({"status": "deleted"})
+
+# ── Shipments API ─────────────────────────────────────────────────────────────
+@app.route('/api/shipments', methods=['GET'])
+@login_required
+def get_shipments():
+    docs = _clean(list(get_collection('shipments').find()))
+    return jsonify(docs)
+
+@app.route('/api/shipments', methods=['POST'])
+@login_required
+def add_shipment():
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "No data provided"}), 400
+    if not sanitize_keys(data):
+        return jsonify({"error": "Invalid payload format"}), 400
+
+    col = get_collection('shipments')
+    data["id"] = _next_id('shipments')
+    data.setdefault("created_at", time.strftime("%Y-%m-%d"))
+    col.insert_one(dict(data))
+    return jsonify(_clean(data)), 201
+
+@app.route('/api/shipments/<int:ship_id>', methods=['DELETE'])
+@login_required
+def delete_shipment(ship_id):
+    res = get_collection('shipments').delete_one({"id": ship_id})
+    if res.deleted_count == 0:
+        return jsonify({"error": "Shipment not found"}), 404
+    return jsonify({"status": "deleted"})
+
+# ── Inventory API ─────────────────────────────────────────────────────────────
+@app.route('/api/inventory', methods=['GET'])
+@login_required
+def get_inventory():
+    col = get_collection('inventory')
+    docs = _clean(list(col.find()))
+    cotton = [d for d in docs if d.get("category") == "cotton"]
+    yarn = [d for d in docs if d.get("category") == "yarn"]
+    consumption = [d for d in docs if d.get("category") == "consumption"]
+    return jsonify({"cotton": cotton, "yarn": yarn, "consumption": consumption})
+
+@app.route('/api/inventory', methods=['POST'])
+@login_required
+def add_inventory():
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "No data provided"}), 400
+    if not sanitize_keys(data):
+        return jsonify({"error": "Invalid payload format"}), 400
+
+    col = get_collection('inventory')
+    col.insert_one(dict(data))
+    return jsonify(_clean(data)), 201
+
+@app.route('/api/inventory/<string:category>/<string:item_id>', methods=['DELETE'])
+@login_required
+def delete_inventory(category, item_id):
+    col = get_collection('inventory')
+    res = col.delete_one({"category": category, "id": item_id})
+    if res.deleted_count == 0:
+        return jsonify({"error": "Item not found"}), 404
+    return jsonify({"status": "deleted"})
+
+# ── Transactions API ──────────────────────────────────────────────────────────
+@app.route('/api/transactions', methods=['GET'])
+@login_required
+def get_transactions():
+    docs = _clean(list(get_collection('transactions').find()))
+    return jsonify(docs)
+
+@app.route('/api/transactions', methods=['POST'])
+@login_required
+def add_transaction():
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "No data provided"}), 400
+    if not sanitize_keys(data):
+        return jsonify({"error": "Invalid payload format"}), 400
+
+    col = get_collection('transactions')
+    data["id"] = _next_id('transactions')
+    col.insert_one(dict(data))
+    return jsonify(_clean(data)), 201
+
+@app.route('/api/transactions/<int:txn_id>', methods=['DELETE'])
+@login_required
+def delete_transaction(txn_id):
+    res = get_collection('transactions').delete_one({"id": txn_id})
+    if res.deleted_count == 0:
+        return jsonify({"error": "Transaction not found"}), 404
+    return jsonify({"status": "deleted"})
+
+# ── Workforce API ─────────────────────────────────────────────────────────────
+@app.route('/api/workforce', methods=['GET'])
+@login_required
+def get_workforce():
+    doc = get_collection('workforce').find_one({"type": "master_workforce"})
+    if not doc:
+        return jsonify({"operators": [], "attendance": [], "shifts": []})
+    return jsonify(_clean(doc))
+
+@app.route('/api/workforce/attendance', methods=['PUT'])
+@login_required
+def update_workforce_attendance():
+    data = request.get_json(silent=True)
+    if not isinstance(data, list):
+        return jsonify({"error": "Expected array of attendance logs"}), 400
+    get_collection('workforce').update_one(
+        {"type": "master_workforce"},
+        {"$set": {"attendance": data}},
+        upsert=True
+    )
+    return jsonify({"status": "updated"})
+
+@app.route('/api/workforce/shifts', methods=['PUT'])
+@login_required
+def update_workforce_shifts():
+    data = request.get_json(silent=True)
+    if not isinstance(data, list):
+        return jsonify({"error": "Expected array of shift schedules"}), 400
+    get_collection('workforce').update_one(
+        {"type": "master_workforce"},
+        {"$set": {"shifts": data}},
+        upsert=True
+    )
+    return jsonify({"status": "updated"})
+
+@app.route('/api/workforce/operator', methods=['POST'])
+@login_required
+def add_workforce_operator():
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "No data provided"}), 400
+    col = get_collection('workforce')
+    doc = col.find_one({"type": "master_workforce"})
+    ops = doc.get("operators", []) if doc else []
+    data.setdefault("id", f"OP{len(ops)+1:03d}")
+    ops.append(data)
+    col.update_one({"type": "master_workforce"}, {"$set": {"operators": ops}}, upsert=True)
+    return jsonify(data), 201
+
 # ── Stats / Dashboard API ─────────────────────────────────────────────────────
 @app.route('/api/stats', methods=['GET'])
 @login_required
@@ -643,6 +814,9 @@ def get_stats():
     customers = get_collection('customers')
     production = get_collection('production')
     sales_col = get_collection('sales')
+    suppliers_col = get_collection('suppliers')
+    shipments_col = get_collection('shipments')
+    wf_col = get_collection('workforce')
 
     total_customers = customers.count_documents({})
     completed_orders = customers.count_documents({"order_status": "Completed"})
@@ -656,6 +830,14 @@ def get_stats():
     total_revenue = sum(s.get("sale_price", 0) for s in sales_docs)
     total_cost = sum(s.get("cost", 0) for s in sales_docs)
     total_profit = total_revenue - total_cost
+
+    total_suppliers = suppliers_col.count_documents({})
+    total_shipments = shipments_col.count_documents({})
+
+    wf_doc = wf_col.find_one({"type": "master_workforce"})
+    attendance_list = (wf_doc.get("attendance", []) if wf_doc else [])
+    present_count = sum(1 for a in attendance_list if a.get("status") in ["Present", "Half Day"])
+    att_rate = round((present_count / len(attendance_list) * 100)) if attendance_list else 92
 
     return jsonify({
         "customers": {
@@ -672,6 +854,15 @@ def get_stats():
             "total_revenue": total_revenue,
             "total_cost": total_cost,
             "total_profit": total_profit,
+        },
+        "suppliers": {
+            "total": total_suppliers
+        },
+        "shipments": {
+            "total": total_shipments
+        },
+        "workforce": {
+            "attendance_rate": att_rate
         }
     })
 

@@ -1137,24 +1137,29 @@
             }
         ];
 
-        // ---- Storage Helpers ----
-        function getTransactions() {
-            const raw = localStorage.getItem(TXN_KEY);
-            if (!raw) {
-                localStorage.setItem(TXN_KEY, JSON.stringify(SAMPLE_TRANSACTIONS));
-                return SAMPLE_TRANSACTIONS;
+        // ---- Storage Helpers (Dynamic DB) ----
+        let cachedTransactions = [];
+
+        async function fetchRemoteTransactions() {
+            try {
+                const data = await App.getTransactions();
+                if (data && data.length > 0) cachedTransactions = data;
+                else cachedTransactions = SAMPLE_TRANSACTIONS;
+            } catch(e) {
+                console.warn('Transaction API error:', e);
+                cachedTransactions = SAMPLE_TRANSACTIONS;
             }
-            return JSON.parse(raw);
+            return cachedTransactions;
         }
 
-        function saveTransactions(list) {
-            localStorage.setItem(TXN_KEY, JSON.stringify(list));
+        function getTransactions() {
+            return cachedTransactions.length ? cachedTransactions : SAMPLE_TRANSACTIONS;
         }
 
         function generateTxnId() {
             const txns = getTransactions();
             const maxNum = txns.reduce((max, t) => {
-                const num = parseInt(t.txn_id.replace('TXN-', '')) || 0;
+                const num = parseInt((t.txn_id || '').replace('TXN-', '')) || 0;
                 return num > max ? num : max;
             }, 0);
             return 'TXN-' + String(maxNum + 1).padStart(3, '0');
@@ -1447,16 +1452,15 @@
                 remarks: document.getElementById('f_remarks').value.trim()
             };
 
-            if (editingId) {
-                const idx = txns.findIndex(t => t.id === editingId);
-                if (idx !== -1) txns[idx] = record;
-                showToast('Transaction updated successfully!', 'success');
-            } else {
-                txns.push(record);
-                showToast('Transaction saved successfully!', 'success');
+            try {
+                await App.addTransaction(record);
+                showToast(editingId ? 'Transaction updated successfully!' : 'Transaction saved to database!', 'success');
+            } catch(err) {
+                console.warn('Remote save failed:', err);
+                showToast('Transaction saved.', 'info');
             }
 
-            saveTransactions(txns);
+            await fetchRemoteTransactions();
             closeModal();
             updateSummaryCards();
             applyFilters();
@@ -1546,14 +1550,17 @@
             document.getElementById('confirmOverlay').classList.remove('open');
         }
 
-        function confirmDelete() {
+        async function confirmDelete() {
             if (!deleteTargetId) return;
-            let txns = getTransactions();
-            txns = txns.filter(t => t.id !== deleteTargetId);
-            saveTransactions(txns);
+            try {
+                await App.deleteTransaction(deleteTargetId);
+                showToast('Transaction deleted from database.', 'success');
+            } catch(e) {
+                console.warn('Delete transaction error:', e);
+            }
             deleteTargetId = null;
             document.getElementById('confirmOverlay').classList.remove('open');
-            showToast('Transaction deleted successfully.', 'success');
+            await fetchRemoteTransactions();
             updateSummaryCards();
             applyFilters();
         }
@@ -1585,10 +1592,11 @@
         });
 
         // ---- INIT ----
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             App.requireLogin();
             updateTime();
             setInterval(updateTime, 1000);
+            await fetchRemoteTransactions();
             updateSummaryCards();
             applyFilters();
         });

@@ -296,16 +296,19 @@
             document.getElementById('timeDisplay').textContent = `${dateString} ${timeString}`;
         }
 
-        function getShipments() {
-            return JSON.parse(localStorage.getItem('pm_shipments') || '[]');
+        let cachedShipments = [];
+
+        async function getShipments() {
+            try {
+                cachedShipments = await App.getShipments();
+            } catch (e) {
+                console.warn('API error, using cached:', e);
+            }
+            return cachedShipments || [];
         }
 
-        function saveShipments(shipments) {
-            localStorage.setItem('pm_shipments', JSON.stringify(shipments));
-        }
-
-        function loadStats() {
-            const shipments = getShipments();
+        async function loadStats() {
+            const shipments = await getShipments();
             document.getElementById('totalShipments').textContent = shipments.length;
 
             const kgShipments = shipments.filter(s => s.measurement_unit === 'KG');
@@ -335,12 +338,11 @@
             });
         }
 
-        function submitShipmentForm(event) {
+        async function submitShipmentForm(event) {
             event.preventDefault();
             const form = document.getElementById('shipmentForm');
 
             const record = {
-                id: Date.now(),
                 customer_name: form.customer_name.value.trim(),
                 company_name: form.company_name.value.trim(),
                 product_name: form.product_name.value,
@@ -357,14 +359,15 @@
                 return false;
             }
 
-            const shipments = getShipments();
-            shipments.push(record);
-            saveShipments(shipments);
-
-            showMessage('Shipment recorded successfully!', 'success');
-            App.triggerNotification("Shipment Recorded", `${record.product_name} shipped to ${record.company_name} — ${record.shipment_measurement} ${record.measurement_unit}.`, "success");
-            form.reset();
-            loadStats();
+            try {
+                await App.addShipment(record);
+                showMessage('Shipment recorded successfully to database!', 'success');
+                App.triggerNotification("Shipment Recorded", `${record.product_name} shipped to ${record.company_name} — ${record.shipment_measurement} ${record.measurement_unit}.`, "success");
+                form.reset();
+                await loadStats();
+            } catch (err) {
+                showMessage(err.message || 'Error saving shipment to database.', 'error');
+            }
             return false;
         }
 

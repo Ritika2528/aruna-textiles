@@ -151,10 +151,35 @@
 
 <script src="../static/js/app.js"></script>
 <script>
-const productionData = [120, 200, 150, 300, 250, 400];
-const efficiencyData = [60, 70, 80, 65];
-const orderData = [5, 3, 2];
-const yarnData = [300, 200, 150, 100];
+let productionData = [120, 200, 150, 300, 250, 400];
+let efficiencyData = [60, 70, 80, 65];
+let orderData = [5, 3, 2];
+let yarnData = [300, 200, 150, 100];
+
+async function loadDynamicChartData() {
+    try {
+        const [prodList, custList, inv] = await Promise.all([
+            App.getProduction(),
+            App.getCustomers(),
+            App.getInventory()
+        ]);
+        if (prodList && prodList.length > 0) {
+            productionData = prodList.map(p => p.production_quantity || 0).slice(0, 6);
+            efficiencyData = prodList.map(p => p.production_status === 'Completed' ? 90 : (p.production_status === 'Processing' ? 70 : 50)).slice(0, 4);
+        }
+        if (custList && custList.length > 0) {
+            const comp = custList.filter(c => c.order_status === 'Completed').length;
+            const proc = custList.filter(c => c.order_status === 'Processing').length;
+            const pend = custList.filter(c => c.order_status === 'Pending').length;
+            orderData = [comp, proc, pend];
+        }
+        if (inv && inv.yarn && inv.yarn.length > 0) {
+            yarnData = inv.yarn.map(y => y.stock).slice(0, 4);
+        }
+    } catch(e) {
+        console.warn('Visualization API load error:', e);
+    }
+}
 
 let chartInsts = [];
 function renderAllCharts() {
@@ -241,8 +266,10 @@ function renderAllCharts() {
     }));
 }
 
-renderAllCharts();
-window.addEventListener('themechange', renderAllCharts);
+loadDynamicChartData().then(() => renderAllCharts());
+window.addEventListener('themechange', () => {
+    loadDynamicChartData().then(() => renderAllCharts());
+});
 </script>
 
 </body>

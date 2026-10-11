@@ -19,6 +19,11 @@ const App = (function () {
     sales:        '/api/sales',
     stats:        '/api/stats',
     notifications:'/api/notifications',
+    suppliers:    '/api/suppliers',
+    shipments:    '/api/shipments',
+    inventory:    '/api/inventory',
+    transactions: '/api/transactions',
+    workforce:    '/api/workforce',
   };
 
   // ── Generic fetch helpers ─────────────────────────────────────────────────
@@ -147,6 +152,46 @@ const App = (function () {
 
   // ── Stats ─────────────────────────────────────────────────────────────────
   const getStats = () => apiFetch(API.stats);
+
+  // ── Suppliers ─────────────────────────────────────────────────────────────
+  const getSuppliers = () => apiFetch(API.suppliers);
+  const addSupplier = (supplier) => apiFetch(API.suppliers, {
+    method: 'POST', body: JSON.stringify(supplier),
+  });
+  const deleteSupplier = (id) => apiFetch(`${API.suppliers}/${id}`, { method: 'DELETE' });
+
+  // ── Shipments ─────────────────────────────────────────────────────────────
+  const getShipments = () => apiFetch(API.shipments);
+  const addShipment = (shipment) => apiFetch(API.shipments, {
+    method: 'POST', body: JSON.stringify(shipment),
+  });
+  const deleteShipment = (id) => apiFetch(`${API.shipments}/${id}`, { method: 'DELETE' });
+
+  // ── Inventory ─────────────────────────────────────────────────────────────
+  const getInventory = () => apiFetch(API.inventory);
+  const addInventoryItem = (item) => apiFetch(API.inventory, {
+    method: 'POST', body: JSON.stringify(item),
+  });
+  const deleteInventoryItem = (category, id) => apiFetch(`${API.inventory}/${category}/${id}`, { method: 'DELETE' });
+
+  // ── Transactions ──────────────────────────────────────────────────────────
+  const getTransactions = () => apiFetch(API.transactions);
+  const addTransaction = (txn) => apiFetch(API.transactions, {
+    method: 'POST', body: JSON.stringify(txn),
+  });
+  const deleteTransaction = (id) => apiFetch(`${API.transactions}/${id}`, { method: 'DELETE' });
+
+  // ── Workforce ─────────────────────────────────────────────────────────────
+  const getWorkforce = () => apiFetch(API.workforce);
+  const addOperator = (op) => apiFetch(`${API.workforce}/operator`, {
+    method: 'POST', body: JSON.stringify(op),
+  });
+  const saveAttendance = (data) => apiFetch(`${API.workforce}/attendance`, {
+    method: 'PUT', body: JSON.stringify(data),
+  });
+  const saveShifts = (data) => apiFetch(`${API.workforce}/shifts`, {
+    method: 'PUT', body: JSON.stringify(data),
+  });
 
   // ── Legacy helpers (kept for backward compatibility) ──────────────────────
   const initStorage = () => {}; // no-op — DB is remote now
@@ -949,6 +994,27 @@ const App = (function () {
     updateSale,
     // Stats
     getStats,
+    // Suppliers
+    getSuppliers,
+    addSupplier,
+    deleteSupplier,
+    // Shipments
+    getShipments,
+    addShipment,
+    deleteShipment,
+    // Inventory
+    getInventory,
+    addInventoryItem,
+    deleteInventoryItem,
+    // Transactions
+    getTransactions,
+    addTransaction,
+    deleteTransaction,
+    // Workforce
+    getWorkforce,
+    addOperator,
+    saveAttendance,
+    saveShifts,
     // Utilities
     getNextId,
     isLoggedIn,

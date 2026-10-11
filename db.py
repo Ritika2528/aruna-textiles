@@ -195,3 +195,94 @@ def seed_sample_data():
              "created_at": "2026-07-06T14:45:00Z"},
         ])
         print("  [OK] Seeded notifications collection")
+
+    # Suppliers
+    if db.suppliers.count_documents({}) == 0:
+        db.suppliers.insert_many([
+            {"id": 1, "supplier_name": "Sri Textile Suppliers", "supplier_category": "Raw Material", "material_type": "Cotton", "contact_person": "Ramesh Kumar", "email_address": "ramesh@sritextile.com", "phone_number": "9876543211", "gst_id": "33AAAAA0000A1Z5", "payment_terms": "Net 30", "city": "Coimbatore", "created_at": "2026-01-10"},
+            {"id": 2, "supplier_name": "Deccan Yarn Works", "supplier_category": "Yarn", "material_type": "Polyester", "contact_person": "Suresh Reddy", "email_address": "suresh@deccan.com", "phone_number": "9876543212", "gst_id": "36BBBBB0000B2Z6", "payment_terms": "Net 15", "city": "Hyderabad", "created_at": "2026-01-15"},
+            {"id": 3, "supplier_name": "Bengal Cotton Co.", "supplier_category": "Raw Material", "material_type": "Cotton", "contact_person": "Mohan Das", "email_address": "mohan@bengal.com", "phone_number": "9876543213", "gst_id": "19CCCCC0000C3Z7", "payment_terms": "Net 30", "city": "Kolkata", "created_at": "2026-02-01"},
+            {"id": 4, "supplier_name": "Surat Fabric Suppliers", "supplier_category": "Fabric", "material_type": "Silk", "contact_person": "Priya Shah", "email_address": "priya@surat.com", "phone_number": "9876543214", "gst_id": "24DDDDD0000D4Z8", "payment_terms": "Net 60", "city": "Surat", "created_at": "2026-02-10"},
+            {"id": 5, "supplier_name": "Ludhiana Thread House", "supplier_category": "Yarn", "material_type": "Wool", "contact_person": "Harpal Singh", "email_address": "harpal@ludhiana.com", "phone_number": "9876543215", "gst_id": "03EEEEE0000E5Z9", "payment_terms": "Advance Payment", "city": "Ludhiana", "created_at": "2026-03-01"},
+            {"id": 6, "supplier_name": "South India Fibers", "supplier_category": "Raw Material", "material_type": "Cotton", "contact_person": "Anand Kumar", "email_address": "anand@southfibers.com", "phone_number": "9876543216", "gst_id": "32FFFFF0000F6Z0", "payment_terms": "Net 30", "city": "Chennai", "created_at": "2026-03-15"}
+        ])
+        print("  [OK] Seeded suppliers collection")
+
+    # Shipments
+    if db.shipments.count_documents({}) == 0:
+        db.shipments.insert_many([
+            {"id": 1, "customer_name": "Rajesh Kumar", "company_name": "TechSpun Ltd", "product_name": "Cotton Yarn", "completed_batch": "BATCH-001", "batches_shipped": 2, "shipment_measurement": 500, "measurement_unit": "KG", "expiry_date": "2026-12-31", "created_at": "2026-03-16"},
+            {"id": 2, "customer_name": "Priya Singh", "company_name": "TextiCorp Industries", "product_name": "Polyester Blend", "completed_batch": "BATCH-002", "batches_shipped": 3, "shipment_measurement": 750, "measurement_unit": "KG", "expiry_date": "2026-11-30", "created_at": "2026-03-17"},
+            {"id": 3, "customer_name": "Anita Sharma", "company_name": "Deccan Textiles", "product_name": "Cotton Yarn", "completed_batch": "BATCH-003", "batches_shipped": 1, "shipment_measurement": 420, "measurement_unit": "KG", "expiry_date": "2027-01-15", "created_at": "2026-04-03"},
+            {"id": 4, "customer_name": "Kavitha Nair", "company_name": "Kerala Fabrics Ltd", "product_name": "Linen Yarn", "completed_batch": "BATCH-004", "batches_shipped": 2, "shipment_measurement": 350, "measurement_unit": "KG", "expiry_date": "2027-02-28", "created_at": "2026-05-02"}
+        ])
+        print("  [OK] Seeded shipments collection")
+
+    # Inventory (Cotton, Yarn, and Consumption)
+    if db.inventory.count_documents({}) == 0:
+        db.inventory.insert_many([
+            {"category": "cotton", "id": "COT001", "type": "Raw Cotton Grade A", "stock": 1200, "minLevel": 400, "location": "Warehouse A", "status": "In Stock"},
+            {"category": "cotton", "id": "COT002", "type": "Short Staple Cotton", "stock": 450, "minLevel": 500, "location": "Warehouse B", "status": "Low Stock"},
+            {"category": "cotton", "id": "COT003", "type": "Egyptian Cotton", "stock": 800, "minLevel": 300, "location": "Warehouse A", "status": "In Stock"},
+            {"category": "cotton", "id": "COT004", "type": "Organic Cotton", "stock": 250, "minLevel": 300, "location": "Warehouse C", "status": "Low Stock"},
+            {"category": "yarn", "id": "YRN001", "type": "Cotton Yarn (30s Count)", "stock": 950, "minLevel": 400, "location": "Warehouse B", "status": "In Stock"},
+            {"category": "yarn", "id": "YRN002", "type": "Polyester Blend Yarn", "stock": 620, "minLevel": 350, "location": "Warehouse A", "status": "In Stock"},
+            {"category": "yarn", "id": "YRN003", "type": "Silk Blend Yarn", "stock": 180, "minLevel": 250, "location": "Warehouse C", "status": "Low Stock"},
+            {"category": "yarn", "id": "YRN004", "type": "Linen Yarn (40s)", "stock": 310, "minLevel": 200, "location": "Warehouse B", "status": "In Stock"},
+            {"category": "consumption", "date": "2026-06-28", "material": "Cotton", "type": "Raw Cotton Grade A", "consumed": 120, "machine": "M001"},
+            {"category": "consumption", "date": "2026-06-29", "material": "Cotton", "type": "Short Staple Cotton", "consumed": 95, "machine": "M002"},
+            {"category": "consumption", "date": "2026-06-30", "material": "Yarn", "type": "Cotton Yarn (20s)", "consumed": 200, "machine": "M003"},
+            {"category": "consumption", "date": "2026-07-01", "material": "Cotton", "type": "Egyptian Cotton", "consumed": 60, "machine": "M001"},
+            {"category": "consumption", "date": "2026-07-01", "material": "Yarn", "type": "Polyester Blend", "consumed": 180, "machine": "M004"},
+            {"category": "consumption", "date": "2026-07-02", "material": "Cotton", "type": "Organic Cotton", "consumed": 75, "machine": "M002"}
+        ])
+        print("  [OK] Seeded inventory collection")
+
+    # Transactions
+    if db.transactions.count_documents({}) == 0:
+        db.transactions.insert_many([
+            {"id": 1, "txn_id": "TXN-001", "customer_name": "Rajesh Kumar", "customer_id": "CUST001", "material": "Cotton", "yarn_type": "Combed", "quality": "Grade A", "quantity_meters": 5000, "yarn_weight_kg": 650, "new_stock": 2400, "amount": 85000, "recorded_by": "Shift Incharge", "datetime": "2026-09-01T10:30:00", "remarks": "First batch of September"},
+            {"id": 2, "txn_id": "TXN-002", "customer_name": "Priya Singh", "customer_id": "CUST002", "material": "Polyester", "yarn_type": "Carded", "quality": "Standard", "quantity_meters": 3500, "yarn_weight_kg": 480, "new_stock": 1920, "amount": 54000, "recorded_by": "Floor Supervisor", "datetime": "2026-09-01T14:15:00", "remarks": "Urgent order dispatch"},
+            {"id": 3, "txn_id": "TXN-003", "customer_name": "Vikram Patel", "customer_id": "CUST003", "material": "Silk Blend", "yarn_type": "Compact", "quality": "Premium", "quantity_meters": 2000, "yarn_weight_kg": 290, "new_stock": 1630, "amount": 92000, "recorded_by": "Quality Manager", "datetime": "2026-09-02T09:45:00", "remarks": "Export quality inspected"},
+            {"id": 4, "txn_id": "TXN-004", "customer_name": "Ananya Roy", "customer_id": "CUST004", "material": "Viscose", "yarn_type": "Rotor", "quality": "Standard", "quantity_meters": 4200, "yarn_weight_kg": 540, "new_stock": 1090, "amount": 47500, "recorded_by": "Store Officer", "datetime": "2026-09-02T16:00:00", "remarks": "Partial delivery completed"},
+            {"id": 5, "txn_id": "TXN-005", "customer_name": "Suresh Reddy", "customer_id": "CUST005", "material": "Wool Blend", "yarn_type": "Combed", "quality": "Grade A", "quantity_meters": 1800, "yarn_weight_kg": 310, "new_stock": 780, "amount": 76000, "recorded_by": "Shift Incharge", "datetime": "2026-09-03T11:20:00", "remarks": "Winter collection supply"},
+            {"id": 6, "txn_id": "TXN-006", "customer_name": "Anita Sharma", "customer_id": "CUST006", "material": "Linen", "yarn_type": "Carded", "quality": "Standard", "quantity_meters": 3000, "yarn_weight_kg": 450, "new_stock": 1800, "amount": 62000, "recorded_by": "Accountant", "datetime": "2026-09-04T08:30:00", "remarks": "Monthly bulk order"}
+        ])
+        print("  [OK] Seeded transactions collection")
+
+    # Workforce
+    if db.workforce.count_documents({}) == 0:
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        shifts_pattern = ["A", "B", "A", "B", "A", "OFF"]
+        operators = [
+            {"id": "OP001", "name": "Ramesh Kumar", "role": "Senior Operator", "dept": "Spinning", "shift": "A", "skill": "Ring Frame", "status": "Active", "efficiency": 94, "target": 350, "phone": "+91 98765 43210"},
+            {"id": "OP002", "name": "Suresh Patil", "role": "Machine Tech", "dept": "Carding", "shift": "A", "skill": "Carding", "status": "Active", "efficiency": 88, "target": 300, "phone": "+91 98765 43211"},
+            {"id": "OP003", "name": "Anil Verma", "role": "Operator", "dept": "Roving", "shift": "B", "skill": "Roving Frame", "status": "Active", "efficiency": 91, "target": 280, "phone": "+91 98765 43212"},
+            {"id": "OP004", "name": "Dinesh Shah", "role": "Junior Tech", "dept": "Winding", "shift": "B", "skill": "Auto Coner", "status": "On Leave", "efficiency": 79, "target": 260, "phone": "+91 98765 43213"},
+            {"id": "OP005", "name": "Mohan Lal", "role": "Master Spinner", "dept": "Spinning", "shift": "A", "skill": "Ring Frame", "status": "Active", "efficiency": 96, "target": 380, "phone": "+91 98765 43214"},
+            {"id": "OP006", "name": "Prakash Rao", "role": "Operator", "dept": "Drawing", "shift": "C", "skill": "Draw Frame", "status": "Active", "efficiency": 85, "target": 290, "phone": "+91 98765 43215"},
+            {"id": "OP007", "name": "Vijay Nair", "role": "Maintenance Tech", "dept": "Maintenance", "shift": "General", "skill": "All Machines", "status": "Active", "efficiency": 92, "target": 200, "phone": "+91 98765 43216"},
+            {"id": "OP008", "name": "Kiran Joshi", "role": "Junior Operator", "dept": "Carding", "shift": "C", "skill": "Carding", "status": "Active", "efficiency": 83, "target": 270, "phone": "+91 98765 43217"}
+        ]
+        attendance = [
+            {"opId": "OP001", "date": "Today", "checkin": "06:03", "status": "Present"},
+            {"opId": "OP002", "date": "Today", "checkin": "06:12", "status": "Present"},
+            {"opId": "OP003", "date": "Today", "checkin": "—", "status": "Absent"},
+            {"opId": "OP004", "date": "Today", "checkin": "—", "status": "Leave"},
+            {"opId": "OP005", "date": "Today", "checkin": "06:00", "status": "Present"},
+            {"opId": "OP006", "date": "Today", "checkin": "14:05", "status": "Present"},
+            {"opId": "OP007", "date": "Today", "checkin": "06:45", "status": "Half Day"},
+            {"opId": "OP008", "date": "Today", "checkin": "14:10", "status": "Present"}
+        ]
+        shifts = []
+        for i, op in enumerate(operators):
+            sched = {day: shifts_pattern[(i + di) % len(shifts_pattern)] for di, day in enumerate(days)}
+            shifts.append({"opId": op["id"], "schedule": sched})
+
+        db.workforce.insert_one({
+            "type": "master_workforce",
+            "operators": operators,
+            "attendance": attendance,
+            "shifts": shifts
+        })
+        print("  [OK] Seeded workforce collection")
