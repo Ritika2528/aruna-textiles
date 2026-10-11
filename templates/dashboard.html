@@ -194,7 +194,7 @@
                                 <th>Production ID</th>
                                 <th>Machine ID</th>
                                 <th>Machine Type</th>
-                                <th>Quantity (units)</th>
+                                <th>Quantity (kg)</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -283,7 +283,7 @@
                     <td><strong>${record.production_id}</strong></td>
                     <td>${record.machine_id}</td>
                     <td>${record.machine_type}</td>
-                    <td>${record.production_quantity}</td>
+                    <td>${record.production_quantity} kg</td>
                     <td><span class="status ${(record.production_status || 'completed').toLowerCase()}">${record.production_status}</span></td>
                 `;
                 tbody.appendChild(tr);

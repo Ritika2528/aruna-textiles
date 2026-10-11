@@ -731,7 +731,7 @@
                     </div>
                     <div class="stat-content">
                         <div class="stat-value" id="summaryTotalStock">0</div>
-                        <div class="stat-label">Total Stock (Units)</div>
+                        <div class="stat-label">Total Stock (kg)</div>
                         <div class="stat-change stable"><i class="fas fa-warehouse"></i> Current Stock</div>
                     </div>
                 </div>
@@ -829,7 +829,7 @@
                                 <th>Quality</th>
                                 <th>Meters</th>
                                 <th>Yarn (Kg)</th>
-                                <th>New Stock</th>
+                                <th>New Stock (kg)</th>
                                 <th>Amount (₹)</th>
                                 <th>Recorded By</th>
                                 <th>Date &amp; Time</th>
@@ -949,9 +949,9 @@
 
                     <!-- New Stock -->
                     <div class="form-group">
-                        <label><i class="fas fa-cubes"></i> New Stock (Units) <span style="color:var(--accent-pink)">*</span></label>
+                        <label><i class="fas fa-cubes"></i> New Stock (kg) <span style="color:var(--accent-pink)">*</span></label>
                         <input type="number" id="f_new_stock" placeholder="e.g. 800" min="0" step="1" required>
-                        <div class="field-hint">Stock quantity after this transaction</div>
+                        <div class="field-hint">Stock quantity after this transaction (kg)</div>
                     </div>
 
                     <!-- Amount -->
@@ -1292,7 +1292,7 @@
                     <td>${escHtml(t.quality)}</td>
                     <td>${parseFloat(t.quantity_meters).toLocaleString('en-IN')} m</td>
                     <td>${parseFloat(t.yarn_weight_kg).toLocaleString('en-IN', {maximumFractionDigits:2})} Kg</td>
-                    <td>${parseInt(t.new_stock).toLocaleString('en-IN')} units</td>
+                    <td>${parseInt(t.new_stock).toLocaleString('en-IN')} kg</td>
                     <td class="amount-cell">₹${parseFloat(t.amount).toLocaleString('en-IN', {maximumFractionDigits:2})}</td>
                     <td>${escHtml(t.recorded_by)}</td>
                     <td style="font-size:12px; white-space:nowrap;">${dtStr}</td>
@@ -1517,7 +1517,7 @@
                 </div>
                 <div class="view-detail-item">
                     <div class="view-detail-label"><i class="fas fa-cubes" style="color:var(--accent-cyan)"></i> New Stock</div>
-                    <div class="view-detail-value">${parseInt(t.new_stock).toLocaleString('en-IN')} units</div>
+                    <div class="view-detail-value">${parseInt(t.new_stock).toLocaleString('en-IN')} kg</div>
                 </div>
                 <div class="view-detail-item">
                     <div class="view-detail-label"><i class="fas fa-rupee-sign" style="color:var(--accent-cyan)"></i> Amount</div>

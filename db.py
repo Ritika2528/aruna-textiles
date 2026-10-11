@@ -190,7 +190,7 @@ def seed_sample_data():
              "timestamp": "10:30 AM", "read": False,
              "created_at": "2026-07-06T10:30:00Z"},
             {"id": 4, "type": "success", "title": "Production Target Met",
-             "message": "Ring Frame M001 has completed its daily target of 320 units.",
+             "message": "Ring Frame M001 has completed its daily target of 320 kg.",
              "timestamp": "02:45 PM", "read": False,
              "created_at": "2026-07-06T14:45:00Z"},
         ])

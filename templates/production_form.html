@@ -354,7 +354,7 @@
             try {
                 await App.addProduction(record);
                 showMessage('Production record added successfully!', 'success');
-                App.triggerNotification("Production Record Added", `Machine ${record.machine_id} (${record.machine_type}) logged ${record.production_quantity} units.`, "success");
+                App.triggerNotification("Production Record Added", `Machine ${record.machine_id} (${record.machine_type}) logged ${record.production_quantity} kg.`, "success");
                 form.reset();
                 loadStats();
             } catch (e) {

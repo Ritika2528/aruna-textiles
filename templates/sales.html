@@ -232,7 +232,7 @@
                             <tr>
                                 <th>Product ID</th>
                                 <th>Product Name</th>
-                                <th>Units Sold (kg)</th>
+                                <th>Quantity Sold (kg)</th>
                                 <th>Sale Price (₹)</th>
                                 <th>Cost (₹)</th>
                                 <th>Profit (₹)</th>
@@ -398,7 +398,7 @@
                 tr.innerHTML = `
                     <td><strong>${record.product_id}</strong></td>
                     <td>${record.product_name}</td>
-                    <td>${record.units_sold}</td>
+                    <td>${record.units_sold} kg</td>
                     <td>₹${record.sale_price.toLocaleString()}</td>
                     <td>₹${record.cost.toLocaleString()}</td>
                     <td><span class="profit-indicator ${profitClass}">₹${profit.toLocaleString()}</span></td>

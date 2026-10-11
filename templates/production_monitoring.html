@@ -295,8 +295,8 @@
                     <td><strong>${record.production_id}</strong></td>
                     <td>${record.machine_id}</td>
                     <td>${record.machine_type}</td>
-                    <td>${record.production_quantity}</td>
-                    <td>${outputRate} units/hr</td>
+                    <td>${record.production_quantity} kg</td>
+                    <td>${outputRate} kg/hr</td>
                     <td><span class="status ${record.production_status.toLowerCase()}">${record.production_status}</span></td>
                 `;
                 tbody.appendChild(tr);
@@ -345,7 +345,7 @@
                     data: {
                         labels: allProduction.map(p => p.machine_id),
                         datasets: [{
-                            label: 'Waste Production (units)',
+                            label: 'Waste Production (kg)',
                             data: allProduction.map(p => Math.round(p.production_quantity * 0.1)),
                             backgroundColor: isDark ? 'rgba(240, 154, 144, 0.7)' : 'rgba(162, 62, 53, 0.65)',
                             borderColor: isDark ? '#F09A90' : '#A23E35',

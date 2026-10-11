@@ -420,7 +420,7 @@
                 <div class="kpi-card c2">
                     <div class="kpi-icon"><i class="fas fa-industry"></i></div>
                     <div class="kpi-value" id="kpiTotalProduced">-</div>
-                    <div class="kpi-label">Units Produced</div>
+                    <div class="kpi-label">Production (kg)</div>
                 </div>
                 <div class="kpi-card c3">
                     <div class="kpi-icon"><i class="fas fa-shopping-bag"></i></div>
@@ -707,8 +707,8 @@
         const completionRate = production.length > 0 ? ((completed/production.length)*100).toFixed(0) : 0;
 
         document.getElementById('kpiTotalRevenue').textContent   = '\u20B9' + totalRevenue.toLocaleString();
-        document.getElementById('kpiTotalProduced').textContent  = totalProd.toLocaleString();
-        document.getElementById('kpiTotalUnitsSold').textContent = totalSold.toLocaleString();
+        document.getElementById('kpiTotalProduced').textContent  = totalProd.toLocaleString() + ' kg';
+        document.getElementById('kpiTotalUnitsSold').textContent = totalSold.toLocaleString() + ' kg';
         document.getElementById('kpiTotalCustomers').textContent = customers.length;
         document.getElementById('kpiProfitMargin').textContent   = profitMargin + '%';
         document.getElementById('kpiProductionRate').textContent = completionRate + '%';
@@ -882,7 +882,7 @@
             data: {
                 labels,
                 datasets: [{
-                    label: 'Output (units)',
+                    label: 'Output (kg)',
                     data: values,
                     backgroundColor: PALETTE.slice(0, labels.length).map(c => hexRgba(c, 0.75)),
                     borderColor:     PALETTE.slice(0, labels.length),
