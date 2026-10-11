@@ -680,6 +680,13 @@ const App = (function () {
   const connectWebSocket = () => {
     if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
 
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+        // In cloud deployment (e.g. Render/Railway), use seamless client simulation for notifications
+        startClientSimulation();
+        return;
+    }
+
     try {
         ws = new WebSocket('ws://localhost:5001');
 

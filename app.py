@@ -30,9 +30,10 @@ app.config.update(
     MAX_CONTENT_LENGTH=1 * 1024 * 1024  # 1MB max body limit to prevent memory DoS
 )
 
-PORT = 5000
-WS_PORT = 5001
-TRUSTED_ORIGINS = {'http://localhost:5000', 'http://127.0.0.1:5000'}
+PORT = int(os.environ.get("PORT", 5000))
+WS_PORT = int(os.environ.get("WS_PORT", 5001))
+TRUSTED_ORIGINS = set(filter(None, os.environ.get("TRUSTED_ORIGINS", "").split(",")))
+TRUSTED_ORIGINS.update({'http://localhost:5000', 'http://127.0.0.1:5000'})
 
 # ── Security Logging ─────────────────────────────────────────────────────────
 def log_security_event(event_type, details, ip=None):
@@ -45,7 +46,8 @@ def log_security_event(event_type, details, ip=None):
 @app.after_request
 def add_security_headers(response):
     origin = request.headers.get('Origin')
-    if origin in TRUSTED_ORIGINS:
+    req_host = request.host_url.rstrip('/')
+    if origin and (origin in TRUSTED_ORIGINS or origin == req_host):
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
@@ -678,5 +680,5 @@ if __name__ == "__main__":
     ws_thread = threading.Thread(target=start_websocket_server, daemon=True)
     ws_thread.start()
 
-    print(f"Starting Hardened Flask server on http://localhost:{PORT}")
-    app.run(host='localhost', port=PORT, debug=False)
+    print(f"Starting Hardened Flask server on http://0.0.0.0:{PORT}")
+    app.run(host='0.0.0.0', port=PORT, debug=False)
