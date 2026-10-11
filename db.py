@@ -264,7 +264,17 @@ def seed_sample_data():
             {"id": "OP007", "name": "Vijay Nair", "role": "Maintenance Tech", "dept": "Maintenance", "shift": "General", "skill": "All Machines", "status": "Active", "efficiency": 92, "target": 200, "phone": "+91 98765 43216"},
             {"id": "OP008", "name": "Kiran Joshi", "role": "Junior Operator", "dept": "Carding", "shift": "C", "skill": "Carding", "status": "Active", "efficiency": 83, "target": 270, "phone": "+91 98765 43217"}
         ]
+        import time as _time
+        today_iso = _time.strftime("%Y-%m-%d")
         attendance = [
+            {"opId": "OP001", "date": today_iso, "checkin": "06:03", "status": "Present"},
+            {"opId": "OP002", "date": today_iso, "checkin": "06:12", "status": "Present"},
+            {"opId": "OP003", "date": today_iso, "checkin": "—", "status": "Absent"},
+            {"opId": "OP004", "date": today_iso, "checkin": "—", "status": "Leave"},
+            {"opId": "OP005", "date": today_iso, "checkin": "06:00", "status": "Present"},
+            {"opId": "OP006", "date": today_iso, "checkin": "14:05", "status": "Present"},
+            {"opId": "OP007", "date": today_iso, "checkin": "06:45", "status": "Half Day"},
+            {"opId": "OP008", "date": today_iso, "checkin": "—", "status": "Absent"},
             {"opId": "OP001", "date": "Today", "checkin": "06:03", "status": "Present"},
             {"opId": "OP002", "date": "Today", "checkin": "06:12", "status": "Present"},
             {"opId": "OP003", "date": "Today", "checkin": "—", "status": "Absent"},
@@ -272,7 +282,7 @@ def seed_sample_data():
             {"opId": "OP005", "date": "Today", "checkin": "06:00", "status": "Present"},
             {"opId": "OP006", "date": "Today", "checkin": "14:05", "status": "Present"},
             {"opId": "OP007", "date": "Today", "checkin": "06:45", "status": "Half Day"},
-            {"opId": "OP008", "date": "Today", "checkin": "14:10", "status": "Present"}
+            {"opId": "OP008", "date": "Today", "checkin": "—", "status": "Absent"}
         ]
         shifts = []
         for i, op in enumerate(operators):

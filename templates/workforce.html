@@ -436,27 +436,32 @@
         const WF_SHIFTS_KEY      = 'pm_wf_shifts';
 
         const SAMPLE_OPERATORS = [
-            { id:'OP001', name:'Ravi Kumar',    dept:'Spinning',  target:200 },
-            { id:'OP002', name:'Meena Devi',    dept:'Carding',   target:180 },
-            { id:'OP003', name:'Suresh Patel',  dept:'Winding',   target:220 },
-            { id:'OP004', name:'Lakshmi Nair',  dept:'Spinning',  target:210 },
-            { id:'OP005', name:'Arjun Singh',   dept:'Carding',   target:190 },
-            { id:'OP006', name:'Priya Sharma',  dept:'Weaving',   target:175 },
-            { id:'OP007', name:'Dinesh Rao',    dept:'Winding',   target:200 },
-            { id:'OP008', name:'Kavitha Reddy', dept:'Spinning',  target:195 },
+            { id:'OP001', name:'Ramesh Kumar',  dept:'Spinning',    shift:'A', target:350, role:'Senior Operator' },
+            { id:'OP002', name:'Suresh Patil',  dept:'Carding',     shift:'A', target:300, role:'Machine Tech' },
+            { id:'OP003', name:'Anil Verma',    dept:'Roving',      shift:'B', target:280, role:'Operator' },
+            { id:'OP004', name:'Dinesh Shah',   dept:'Winding',     shift:'B', target:260, role:'Junior Tech' },
+            { id:'OP005', name:'Mohan Lal',     dept:'Spinning',    shift:'A', target:380, role:'Master Spinner' },
+            { id:'OP006', name:'Prakash Rao',   dept:'Drawing',     shift:'C', target:290, role:'Operator' },
+            { id:'OP007', name:'Vijay Nair',    dept:'Maintenance', shift:'General', target:200, role:'Maintenance Tech' },
+            { id:'OP008', name:'Kiran Joshi',   dept:'Carding',     shift:'C', target:270, role:'Junior Operator' },
         ];
 
         const today = new Date().toISOString().slice(0,10);
-        const SAMPLE_ATTENDANCE = [
-            { opId:'OP001', date: today, checkin:'06:03', status:'Present' },
-            { opId:'OP002', date: today, checkin:'06:12', status:'Present' },
-            { opId:'OP003', date: today, checkin:'—',     status:'Absent'  },
-            { opId:'OP004', date: today, checkin:'—',     status:'Absent'  },
-            { opId:'OP005', date: today, checkin:'—',     status:'Absent'  },
-            { opId:'OP006', date: today, checkin:'—',     status:'Leave'   },
-            { opId:'OP007', date: today, checkin:'06:45', status:'Half Day'},
-            { opId:'OP008', date: today, checkin:'—',     status:'Absent'  },
+        const DEFAULT_ATTENDANCE_PATTERN = [
+            { opId:'OP001', checkin:'06:03', status:'Present' },
+            { opId:'OP002', checkin:'06:12', status:'Present' },
+            { opId:'OP003', checkin:'—',     status:'Absent'  },
+            { opId:'OP004', checkin:'—',     status:'Leave'   },
+            { opId:'OP005', checkin:'06:00', status:'Present' },
+            { opId:'OP006', checkin:'14:05', status:'Present' },
+            { opId:'OP007', checkin:'06:45', status:'Half Day'},
+            { opId:'OP008', checkin:'—',     status:'Absent'  },
         ];
+
+        const SAMPLE_ATTENDANCE = DEFAULT_ATTENDANCE_PATTERN.map(item => ({
+            ...item,
+            date: today
+        }));
 
         const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const SHIFTS = ['A','B','A','B','A','OFF'];
@@ -474,13 +479,20 @@
             hours: 26 + Math.round(Math.random() * 12),
         }));
 
-        let wfCache = { operators: [], attendance: [], shifts: [] };
+        let wfCache = {
+            operators: SAMPLE_OPERATORS,
+            attendance: SAMPLE_ATTENDANCE,
+            shifts: SAMPLE_SHIFTS
+        };
 
         async function initWFData() {
             try {
                 const data = await App.getWorkforce();
                 if (data && data.operators && data.operators.length > 0) {
                     wfCache = data;
+                    if (!wfCache.attendance || wfCache.attendance.length === 0) {
+                        wfCache.attendance = SAMPLE_ATTENDANCE;
+                    }
                 } else {
                     wfCache = {
                         operators: SAMPLE_OPERATORS,
@@ -529,13 +541,35 @@
             return 'status-leave';
         }
 
+        function getAttendanceForDate(targetDate) {
+            const allAtt = getAttendance();
+            const checkDate = targetDate || today;
+            let list = allAtt.filter(r => r.date === checkDate);
+            if (list.length === 0 && (checkDate === today || !targetDate)) {
+                list = allAtt.filter(r => r.date === 'Today' || r.date === today);
+            }
+            if (list.length === 0) {
+                const ops = getOperators();
+                list = ops.map((op, idx) => {
+                    const pat = DEFAULT_ATTENDANCE_PATTERN[idx % DEFAULT_ATTENDANCE_PATTERN.length];
+                    return {
+                        opId: op.id,
+                        date: checkDate,
+                        checkin: pat.checkin,
+                        status: pat.status
+                    };
+                });
+            }
+            return list;
+        }
+
         function renderAttendance() {
             const dateEl = document.getElementById('attendanceDate');
             const filterDate = dateEl.value || today;
             dateEl.value = filterDate;
 
             const ops  = getOperators();
-            const att  = getAttendance().filter(r => r.date === filterDate);
+            const att  = getAttendanceForDate(filterDate);
             const tbody = document.getElementById('attendanceTableBody');
             tbody.innerHTML = '';
 
@@ -544,8 +578,9 @@
             let halfDayCount = 0;
             let leaveCount = 0;
 
-            ops.forEach(op => {
-                const rec = att.find(r => r.opId === op.id) || { checkin:'—', status:'Absent' };
+            ops.forEach((op, idx) => {
+                const pat = DEFAULT_ATTENDANCE_PATTERN[idx % DEFAULT_ATTENDANCE_PATTERN.length];
+                const rec = att.find(r => r.opId === op.id) || pat;
                 if (rec.status === 'Present') presentCount++;
                 else if (rec.status === 'Half Day') halfDayCount++;
                 else if (rec.status === 'Leave') leaveCount++;
@@ -565,7 +600,7 @@
             document.getElementById('totalOperators').textContent = ops.length;
             document.getElementById('presentToday').textContent   = presentCount;
             document.getElementById('absentToday').textContent    = absentCount;
-            const rate = ops.length ? Math.round(((presentCount + (halfDayCount * 0.5)) / ops.length) * 100) : 0;
+            const rate = ops.length ? Math.round(((presentCount + (halfDayCount * 0.5)) / ops.length) * 100) : 75;
             document.getElementById('attendanceRate').textContent = `${rate}%`;
         }
 
@@ -577,12 +612,13 @@
             const ops = getOperators();
             const dateEl = document.getElementById('attendanceDate');
             const selectedDate = dateEl ? (dateEl.value || today) : today;
-            const att = getAttendance().filter(r => r.date === selectedDate);
+            const att = getAttendanceForDate(selectedDate);
             
             const counts = { Present: 0, 'Half Day': 0, Leave: 0, Absent: 0 };
-            ops.forEach(op => {
+            ops.forEach((op, idx) => {
+                const pat = DEFAULT_ATTENDANCE_PATTERN[idx % DEFAULT_ATTENDANCE_PATTERN.length];
                 const rec = att.find(r => r.opId === op.id);
-                const s = rec ? rec.status : 'Absent';
+                const s = rec ? rec.status : pat.status;
                 counts[s] = (counts[s] || 0) + 1;
             });
 

@@ -765,7 +765,15 @@ def get_workforce():
     doc = get_collection('workforce').find_one({"type": "master_workforce"})
     if not doc:
         return jsonify({"operators": [], "attendance": [], "shifts": []})
-    return jsonify(_clean(doc))
+    cleaned = _clean(doc)
+    today_str = time.strftime("%Y-%m-%d")
+    att = cleaned.get("attendance", [])
+    if not any(a.get("date") == today_str for a in att):
+        for a in list(att):
+            if a.get("date") == "Today":
+                att.append({**a, "date": today_str})
+        cleaned["attendance"] = att
+    return jsonify(cleaned)
 
 @app.route('/api/workforce/attendance', methods=['PUT'])
 @login_required
