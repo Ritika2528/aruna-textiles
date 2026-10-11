@@ -249,7 +249,9 @@
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-chart-pie"></i> Stock Distribution</h3>
                     </div>
-                    <canvas id="stockChart" height="220"></canvas>
+                    <div class="chart-container" style="position: relative; width: 100%; height: 260px; max-height: 280px; display: flex; align-items: center; justify-content: center; padding: 6px;">
+                        <canvas id="stockChart"></canvas>
+                    </div>
                 </div>
 
             </div><!-- end second charts-grid -->
@@ -540,14 +542,41 @@
 
             if (stockChartInstance) stockChartInstance.destroy();
             const ctx = document.getElementById('stockChart').getContext('2d');
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.dataset.theme === 'dark';
+            const cardBg = isDark ? '#1C1F1E' : '#FFFFFF';
+            const textMuted = isDark ? '#8A908D' : '#73786F';
+
             stockChartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: 'transparent' }] },
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: cardBg,
+                        hoverOffset: 4
+                    }]
+                },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '66%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary'), font: { size: 11 }, padding: 12 } },
-                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} kg` } }
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                color: textMuted,
+                                font: { size: 11, family: "'Plus Jakarta Sans', sans-serif" },
+                                padding: 8
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} kg`
+                            }
+                        }
                     }
                 }
             });

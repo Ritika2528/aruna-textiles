@@ -170,7 +170,7 @@ def validate_customer_payload(data, is_update=False):
     """Strict allowlist and type validation for customers."""
     if not sanitize_keys(data):
         return False, "Invalid keys in payload."
-    allowed_fields = {'customer_id', 'customer_name', 'company_name', 'phone_number', 'product_type', 'order_quantity', 'order_status'}
+    allowed_fields = {'customer_id', 'customer_name', 'company_name', 'phone_number', 'product_type', 'order_quantity', 'order_status', 'order_value', 'order_count', 'created_at'}
     cleaned = {}
     for k, v in data.items():
         if k in allowed_fields:
@@ -186,7 +186,17 @@ def validate_customer_payload(data, is_update=False):
                 return False, "Order quantity cannot be negative."
         except (ValueError, TypeError):
             return False, "Invalid order quantity format."
-    for str_key in ['customer_id', 'customer_name', 'company_name', 'phone_number', 'product_type', 'order_status']:
+    if 'order_value' in cleaned:
+        try:
+            cleaned['order_value'] = float(cleaned['order_value'])
+        except (ValueError, TypeError):
+            pass
+    if 'order_count' in cleaned:
+        try:
+            cleaned['order_count'] = int(cleaned['order_count'])
+        except (ValueError, TypeError):
+            pass
+    for str_key in ['customer_id', 'customer_name', 'company_name', 'phone_number', 'product_type', 'order_status', 'created_at']:
         if str_key in cleaned:
             cleaned[str_key] = str(cleaned[str_key])[:100]
     return True, cleaned
