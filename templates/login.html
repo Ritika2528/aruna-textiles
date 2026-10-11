@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Aruna Textiles</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .login-theme-toggle {
+            position: absolute;
+            top: 26px;
+            right: 36px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #075B5B;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+            transition: all 0.2s ease;
+        }
+
+        .login-theme-toggle:hover {
+            transform: scale(1.06);
+            background: #ffffff;
+            color: #043F40;
+        }
+
+        [data-theme="dark"] .login-theme-toggle {
+            background: rgba(34, 39, 37, 0.9);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #65BDB4;
+        }
+
+        [data-theme="dark"] .login-theme-toggle:hover {
+            background: #252B29;
+            color: #7BCBC2;
+        }
+
+        body {
+            background-color: #bfa071;
+            padding: 24px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* Outer Frame / Scenic Wardrobe Background */
+        .stage-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1360px;
+            height: calc(100vh - 48px);
+            min-height: 640px;
+            max-height: 840px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #1c1512 url('../static/images/login_bg.jpg') center center / cover no-repeat;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 40px 70px;
+        }
+
+        /* Subtle atmospheric overlay */
+        .stage-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.2) 40%, rgba(0, 0, 0, 0.4) 100%);
+            pointer-events: none;
+        }
+
+        /* Brand Logo in Top-Left */
+        .brand-logo-top {
+            position: absolute;
+            top: 28px;
+            left: 36px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            z-index: 5;
+        }
+
+        .brand-logo-top i {
+            color: #f3dfbf;
+            font-size: 20px;
+        }
+
+        /* The Exact Floating Login Card from Reference */
+        .login-card-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 38px 36px 36px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+            animation: cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Top Header Row */
+        .card-top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .welcome-label {
+            color: #222222;
+            font-weight: 500;
+        }
+
+        .welcome-label .brand-highlight {
+            color: #c49e68;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+
+        .no-account-group {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11.5px;
+            color: #777777;
+        }
+
+        .signup-outline-btn {
+            background: transparent;
+            border: 1px solid #d8caa7;
+            color: #c49e68;
+            border-radius: 6px;
+            padding: 2.5px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .signup-outline-btn:hover {
+            background: #fbf6ee;
+            border-color: #c49e68;
+        }
+
+        /* Card Title */
+        .card-title {
+            font-size: 32px;
+            font-weight: 750;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+            margin-bottom: 22px;
+        }
+
+        /* Social / Quick Login Buttons */
+        .social-buttons-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .social-pill-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: none;
+            background: #edf3fa;
+            color: #2b394b;
+            font-size: 13.5px;
+            font-weight: 550;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .social-pill-btn:hover {
+            background: #e2ecf7;
+            transform: translateY(-1px);
+        }
+
+        .social-pill-btn.fb-style {
+            background: #ebf2fc;
+            color: #1877f2;
+        }
+
+        .social-pill-btn.fb-style:hover {
+            background: #deebfa;
+        }
+
+        .google-icon-svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .fb-icon {
+            font-size: 17px;
+            color: #1877f2;
+        }
+
+        /* Form Fields */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .field-unit {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333333;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d5d5d5;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #222222;
+            font-size: 13.5px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .field-input:focus {
+            border-color: #c49e68;
+            box-shadow: 0 0 0 3px rgba(196, 158, 104, 0.2);
+        }
+
+        .field-input::placeholder {
+            color: #aaaaaa;
+            font-size: 13px;
+        }
+
+        .forgot-link-row {
+            text-align: right;
+            margin-top: -6px;
+            margin-bottom: 6px;
+        }
+
+        .forgot-link {
+            color: #c49e68;
+            font-size: 11.5px;
+            font-weight: 550;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-link:hover {
+            color: #ad8449;
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .signin-submit-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 9px;
+            border: none;
+            background: #c49e68;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(196, 158, 104, 0.35);
+        }
+
+        .signin-submit-btn:hover {
+            background: #b58d55;
+            box-shadow: 0 6px 18px rgba(196, 158, 104, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .signin-submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Error Banner */
+        .login-error-alert {
+            background: #fdf2f2;
+            border: 1px solid #f8b4b4;
+            color: #9b1c1c;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: shake 0.35s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%       { transform: translateX(-4px); }
+            75%       { transform: translateX(4px); }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 960px) {
+            .stage-wrapper {
+                justify-content: center;
+                padding: 30px 20px;
+            }
+            .brand-logo-top {
+                top: 20px;
+                left: 24px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 8px;
+            }
+            .stage-wrapper {
+                height: 100vh;
+                max-height: none;
+                border-radius: 12px;
+                padding: 20px 14px;
+            }
+            .login-card-container {
+                padding: 28px 22px;
+                border-radius: 22px;
+            }
+            .card-title {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stage-wrapper">
+        <div class="stage-overlay"></div>
+
+        <!-- Brand Logo Top-Left -->
+        <div class="brand-logo-top">
+            <i class="fas fa-industry"></i>
+            <span>Aruna Textiles</span>
+        </div>
+
+        <!-- Theme Toggle Top-Right -->
+        <button class="login-theme-toggle theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme" aria-label="Toggle light or dark theme">
+            <i class="fas fa-moon"></i>
+        </button>
+
+        <!-- Exact Reference Floating Login Card -->
+        <div class="login-card-container">
+            <!-- Top Header Row -->
+            <div class="card-top-header">
+                <div class="welcome-label">
+                    Welcome back, <span class="brand-highlight">SHRESTAS</span>
+                </div>
+                <div class="no-account-group">
+                    <span>No Account ?</span>
+                    <button type="button" class="signup-outline-btn" onclick="doQuickLogin()">Sign up</button>
+                </div>
+            </div>
+
+            <!-- Login Title -->
+            <h1 class="card-title">Login</h1>
+
+            <!-- Social / One-Click Sign In Stack -->
+            <div class="social-buttons-stack">
+                <button type="button" class="social-pill-btn" onclick="doQuickLogin()" title="Click to 1-Click Sign in">
+                    <!-- Google Multi-Color SVG -->
+                    <svg class="google-icon-svg" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.91 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    </svg>
+                    <span>Sign in with Google</span>
+                </button>
+
+                <button type="button" class="social-pill-btn fb-style" onclick="doQuickLogin()" title="Click to 1-Click Sign in">
+                    <i class="fab fa-facebook-f fb-icon"></i>
+                    <span>Sign in with Facebook</span>
+                </button>
+            </div>
+
+            <!-- Main Form -->
+            <form onsubmit="return handleLogin(event)" class="form-section">
+                <div id="errorMessage" class="login-error-alert" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <div class="field-unit">
+                    <label class="field-label" for="username">Enter your mobile number</label>
+                    <input id="username" type="text" class="field-input" placeholder="Mobile number or admin" value="admin" required>
+                </div>
+
+                <div class="field-unit">
+                    <label class="field-label" for="password">Enter your Password</label>
+                    <input id="password" type="password" class="field-input" placeholder="Password" value="admin123" required>
+                </div>
+
+                <div class="forgot-link-row">
+                    <a href="#" class="forgot-link" onclick="doQuickLogin(); return false;">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="signin-submit-btn" id="loginBtn">
+                    Sign in
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        // If already logged in, redirect straight to dashboard
+        App.redirectIfLoggedIn();
+
+        async function doQuickLogin() {
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'admin123';
+            const btn = document.getElementById('loginBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Authenticating...'; }
+            const res = await App.login('admin', 'admin123');
+            if (res && res.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+                const errorMessage = document.getElementById('errorMessage');
+                const errorText = document.getElementById('errorText');
+                errorText.textContent = (res && res.error) || 'Authentication failed.';
+                errorMessage.style.display = 'flex';
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const btn = document.getElementById('loginBtn');
+
+            if (btn) { btn.disabled = true; btn.textContent = 'Authenticating...'; }
+
+            const res = await App.login(username, password);
+
+            if (!res || !res.success) {
+                errorText.textContent = (res && res.error) || 'Invalid username or password.';
+                errorMessage.style.display = 'flex';
+                if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+                return false;
+            }
+
+            // Successful login -> go to dashboard
+            window.location.href = 'dashboard.html';
+            return false;
+        }
+    </script>
+</body>
+</html>

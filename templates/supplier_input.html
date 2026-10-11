@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Input - Production System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <span>ARUNA</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="production_monitoring.html" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Production Monitoring</span>
+            </a>
+            <a href="sales.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales</span>
+            </a>
+            <a href="analysis.html" class="nav-item">
+                <i class="fas fa-microscope"></i>
+                <span>Analysis</span>
+            </a>
+            <a href="transaction.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="workforce.html" class="nav-item">
+                <i class="fas fa-hard-hat"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="customer_form.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customer Form</span>
+            </a>
+            <a href="production_form.html" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Production Form</span>
+            </a>
+            <a href="supplier_input.html" class="nav-item active">
+                <i class="fas fa-truck-loading"></i>
+                <span>Supplier Input</span>
+            </a>
+            <a href="shipment.html" class="nav-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Shipment</span>
+            </a>
+            <a href="data_view.html" class="nav-item">
+                <i class="fas fa-database"></i>
+                <span>Data</span>
+            </a>
+            <a href="notification.html" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="page-title">Supplier Input</h1>
+                <div class="header-info">
+                    <span class="time-display" id="timeDisplay"></span>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="form-container">
+                <div id="formMessage" class="alert" style="display: none;"></div>
+
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2><i class="fas fa-truck-loading"></i> Add New Supplier</h2>
+                        <p>Fill in the details below to register a new supplier</p>
+                    </div>
+
+                    <form onsubmit="return submitSupplierForm(event)" class="glass-form" id="supplierForm">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-building"></i> Supplier / Company Name
+                                </label>
+                                <input type="text" name="supplier_name" class="form-input" placeholder="e.g. Sri Textile Pvt Ltd" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-layer-group"></i> Fabric / Material Type
+                                </label>
+                                <select name="material_type" class="form-input" required>
+                                    <option value="">Select Material Type</option>
+                                    <option value="Cotton">Cotton</option>
+                                    <option value="Polyester">Polyester</option>
+                                    <option value="Cotton Blend">Cotton Blend</option>
+                                    <option value="Silk">Silk</option>
+                                    <option value="Wool">Wool</option>
+                                    <option value="Nylon">Nylon</option>
+                                    <option value="Linen">Linen</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> Contact Person
+                                </label>
+                                <input type="text" name="contact_person" class="form-input" placeholder="e.g. Ramesh Kumar" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> Phone Number
+                                </label>
+                                <input type="tel" name="phone_number" class="form-input" placeholder="e.g. 9876543210" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> Email Address
+                                </label>
+                                <input type="email" name="email_address" class="form-input" placeholder="e.g. contact@supplier.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-receipt"></i> GST / Tax ID
+                                </label>
+                                <input type="text" name="gst_id" class="form-input" placeholder="e.g. 22AAAAA0000A1Z5" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-credit-card"></i> Payment Terms
+                                </label>
+                                <select name="payment_terms" class="form-input" required>
+                                    <option value="">Select Payment Terms</option>
+                                    <option value="Advance Payment">Advance Payment</option>
+                                    <option value="Net 15">Net 15</option>
+                                    <option value="Net 30">Net 30</option>
+                                    <option value="Net 60">Net 60</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-map-marker-alt"></i> City
+                                </label>
+                                <input type="text" name="city" class="form-input" placeholder="e.g. Coimbatore" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Save Supplier
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="cancelForm()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-grid" style="margin-top: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon production">
+                            <i class="fas fa-truck-loading"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalSuppliers">12</div>
+                            <div class="stat-label">Total Suppliers</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon efficiency">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="fabricSuppliers">4</div>
+                            <div class="stat-label">Fabric Suppliers</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon machines">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="yarnSuppliers">3</div>
+                            <div class="stat-label">Yarn Suppliers</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon downtime">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="rawMaterialSuppliers">5</div>
+                            <div class="stat-label">Raw Material</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Supplier Records -->
+                <div class="data-card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Recent Supplier Records</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Supplier Name</th>
+                                    <th>Material Type</th>
+                                    <th>Contact Person</th>
+                                    <th>City</th>
+                                    <th>Payment Terms</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentSuppliers">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            App.requireLogin();
+            updateTime();
+            loadStats();
+            setInterval(updateTime, 1000);
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            document.getElementById('timeDisplay').textContent = `${dateString} ${timeString}`;
+        }
+
+        function getSuppliers() {
+            // Seed demo data on first load
+            const existing = JSON.parse(localStorage.getItem('pm_suppliers') || 'null');
+            if (!existing) {
+                const demo = [
+                    {id:1, supplier_name:'Sri Textile Suppliers',   supplier_category:'Raw Material', material_type:'Cotton',   contact_person:'Ramesh Kumar',  email_address:'ramesh@sritextile.com',   phone_number:'9876543211', gst_id:'33AAAAA0000A1Z5', payment_terms:'Net 30', city:'Coimbatore',   created_at:'2026-01-10'},
+                    {id:2, supplier_name:'Deccan Yarn Works',        supplier_category:'Yarn',         material_type:'Polyester', contact_person:'Suresh Reddy',  email_address:'suresh@deccan.com',       phone_number:'9876543212', gst_id:'36BBBBB0000B2Z6', payment_terms:'Net 15', city:'Hyderabad',    created_at:'2026-01-15'},
+                    {id:3, supplier_name:'Bengal Cotton Co.',        supplier_category:'Raw Material', material_type:'Cotton',   contact_person:'Mohan Das',     email_address:'mohan@bengal.com',        phone_number:'9876543213', gst_id:'19CCCCC0000C3Z7', payment_terms:'Net 30', city:'Kolkata',      created_at:'2026-02-01'},
+                    {id:4, supplier_name:'Surat Fabric Suppliers',  supplier_category:'Fabric',       material_type:'Silk',     contact_person:'Priya Shah',    email_address:'priya@surat.com',         phone_number:'9876543214', gst_id:'24DDDDD0000D4Z8', payment_terms:'Net 60', city:'Surat',        created_at:'2026-02-10'},
+                    {id:5, supplier_name:'Ludhiana Thread House',   supplier_category:'Yarn',         material_type:'Wool',     contact_person:'Harpal Singh',  email_address:'harpal@ludhiana.com',     phone_number:'9876543215', gst_id:'03EEEEE0000E5Z9', payment_terms:'Advance Payment', city:'Ludhiana', created_at:'2026-03-01'},
+                    {id:6, supplier_name:'South India Fibers',      supplier_category:'Raw Material', material_type:'Cotton',   contact_person:'Anand Kumar',   email_address:'anand@southfibers.com',   phone_number:'9876543216', gst_id:'32FFFFF0000F6Z0', payment_terms:'Net 30', city:'Chennai',      created_at:'2026-03-15'},
+                ];
+                localStorage.setItem('pm_suppliers', JSON.stringify(demo));
+                return demo;
+            }
+            return existing;
+        }
+
+        function saveSuppliers(suppliers) {
+            localStorage.setItem('pm_suppliers', JSON.stringify(suppliers));
+        }
+
+        function loadStats() {
+            const suppliers = getSuppliers();
+            document.getElementById('totalSuppliers').textContent = suppliers.length;
+            document.getElementById('fabricSuppliers').textContent = suppliers.filter(s => s.supplier_category === 'Fabric').length;
+            document.getElementById('yarnSuppliers').textContent = suppliers.filter(s => s.supplier_category === 'Yarn').length;
+            document.getElementById('rawMaterialSuppliers').textContent = suppliers.filter(s => s.supplier_category === 'Raw Material').length;
+
+            const tbody = document.getElementById('recentSuppliers');
+            tbody.innerHTML = '';
+            suppliers.slice(-5).reverse().forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${record.supplier_name}</strong></td>
+                    <td>${record.material_type}</td>
+                    <td>${record.contact_person}</td>
+                    <td>${record.city}</td>
+                    <td>${record.payment_terms}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function submitSupplierForm(event) {
+            event.preventDefault();
+            const form = document.getElementById('supplierForm');
+
+            const record = {
+                id: Date.now(),
+                supplier_name: form.supplier_name.value.trim(),
+                material_type: form.material_type.value,
+                contact_person: form.contact_person.value.trim(),
+                email_address: form.email_address.value.trim(),
+                phone_number: form.phone_number.value.trim(),
+                gst_id: form.gst_id.value.trim(),
+                payment_terms: form.payment_terms.value,
+                city: form.city.value.trim(),
+                created_at: new Date().toISOString().split('T')[0]
+            };
+
+            if (!record.supplier_name || !record.contact_person) {
+                showMessage('Please fill in all required fields.', 'error');
+                return false;
+            }
+
+            const suppliers = getSuppliers();
+            suppliers.push(record);
+            saveSuppliers(suppliers);
+
+            showMessage('Supplier saved successfully!', 'success');
+            App.triggerNotification("New Supplier Added", `${record.supplier_name} has been registered.`, "success");
+            form.reset();
+            loadStats();
+            return false;
+        }
+
+        function cancelForm() {
+            document.getElementById('supplierForm').reset();
+            const msg = document.getElementById('formMessage');
+            msg.style.display = 'none';
+        }
+
+        function showMessage(message, type = 'success') {
+            const formMessage = document.getElementById('formMessage');
+            formMessage.className = `alert alert-${type}`;
+            formMessage.textContent = message;
+            formMessage.style.display = 'block';
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

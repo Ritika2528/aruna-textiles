@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipment - Production System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <span>ARUNA</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="production_monitoring.html" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Production Monitoring</span>
+            </a>
+            <a href="sales.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales</span>
+            </a>
+            <a href="analysis.html" class="nav-item">
+                <i class="fas fa-microscope"></i>
+                <span>Analysis</span>
+            </a>
+            <a href="transaction.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="workforce.html" class="nav-item">
+                <i class="fas fa-hard-hat"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="customer_form.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customer Form</span>
+            </a>
+            <a href="production_form.html" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Production Form</span>
+            </a>
+            <a href="supplier_input.html" class="nav-item">
+                <i class="fas fa-truck-loading"></i>
+                <span>Supplier Input</span>
+            </a>
+            <a href="shipment.html" class="nav-item active">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Shipment</span>
+            </a>
+            <a href="data_view.html" class="nav-item">
+                <i class="fas fa-database"></i>
+                <span>Data</span>
+            </a>
+            <a href="notification.html" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="page-title">Shipment</h1>
+                <div class="header-info">
+                    <span class="time-display" id="timeDisplay"></span>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="form-container">
+                <div id="formMessage" class="alert" style="display: none;"></div>
+
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2><i class="fas fa-shipping-fast"></i> Record New Shipment</h2>
+                        <p>Log shipment details for completed production batches</p>
+                    </div>
+
+                    <form onsubmit="return submitShipmentForm(event)" class="glass-form" id="shipmentForm">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> Customer Name
+                                </label>
+                                <input type="text" name="customer_name" class="form-input" placeholder="e.g. Rajesh Kumar" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-building"></i> Customer / Company Name
+                                </label>
+                                <input type="text" name="company_name" class="form-input" placeholder="e.g. TechSpun Ltd" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-box"></i> Product Name / Product Type
+                                </label>
+                                <select name="product_name" class="form-input" required>
+                                    <option value="">Select Product</option>
+                                    <option value="Cotton Yarn">Cotton Yarn</option>
+                                    <option value="Polyester Blend">Polyester Blend</option>
+                                    <option value="Silk Blend">Silk Blend</option>
+                                    <option value="Nylon">Nylon</option>
+                                    <option value="Wool Blend">Wool Blend</option>
+                                    <option value="Linen Yarn">Linen Yarn</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-barcode"></i> Completed Batch
+                                </label>
+                                <input type="text" name="completed_batch" class="form-input" placeholder="e.g. PROD001" required>
+                                <small class="form-text">Enter the completed production batch ID</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-layer-group"></i> Number of Batches Shipped
+                                </label>
+                                <input type="number" name="batches_shipped" class="form-input" placeholder="e.g. 5" required min="1">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-balance-scale"></i> Shipment Measurement
+                                </label>
+                                <input type="number" name="shipment_measurement" class="form-input" placeholder="e.g. 500" required min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-weight-hanging"></i> Measurement Unit
+                                </label>
+                                <select name="measurement_unit" class="form-input" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="KG">KG</option>
+                                    <option value="Tons">Tons</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar-alt"></i> Expiry Date
+                                </label>
+                                <input type="date" name="expiry_date" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Save Shipment
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="cancelForm()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-grid" style="margin-top: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon production">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalShipments">0</div>
+                            <div class="stat-label">Total Shipments</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon efficiency">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalKg">0</div>
+                            <div class="stat-label">Total KG Shipped</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon machines">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalTons">0</div>
+                            <div class="stat-label">Total Tons Shipped</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon downtime">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalBatches">0</div>
+                            <div class="stat-label">Total Batches</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Shipment Records -->
+                <div class="data-card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Recent Shipment Records</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>Company</th>
+                                    <th>Product</th>
+                                    <th>Batch</th>
+                                    <th>Measurement</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentShipments">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            App.requireLogin();
+            updateTime();
+            loadStats();
+            setInterval(updateTime, 1000);
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            document.getElementById('timeDisplay').textContent = `${dateString} ${timeString}`;
+        }
+
+        function getShipments() {
+            return JSON.parse(localStorage.getItem('pm_shipments') || '[]');
+        }
+
+        function saveShipments(shipments) {
+            localStorage.setItem('pm_shipments', JSON.stringify(shipments));
+        }
+
+        function loadStats() {
+            const shipments = getShipments();
+            document.getElementById('totalShipments').textContent = shipments.length;
+
+            const kgShipments = shipments.filter(s => s.measurement_unit === 'KG');
+            const tonShipments = shipments.filter(s => s.measurement_unit === 'Tons');
+
+            const totalKg = kgShipments.reduce((sum, s) => sum + (parseFloat(s.shipment_measurement) || 0), 0);
+            const totalTons = tonShipments.reduce((sum, s) => sum + (parseFloat(s.shipment_measurement) || 0), 0);
+            const totalBatches = shipments.reduce((sum, s) => sum + (parseInt(s.batches_shipped) || 0), 0);
+
+            document.getElementById('totalKg').textContent = totalKg.toFixed(1);
+            document.getElementById('totalTons').textContent = totalTons.toFixed(1);
+            document.getElementById('totalBatches').textContent = totalBatches;
+
+            const tbody = document.getElementById('recentShipments');
+            tbody.innerHTML = '';
+            shipments.slice(-5).reverse().forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${record.customer_name}</strong></td>
+                    <td>${record.company_name}</td>
+                    <td>${record.product_name}</td>
+                    <td>${record.completed_batch}</td>
+                    <td>${record.shipment_measurement} ${record.measurement_unit}</td>
+                    <td>${record.expiry_date}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function submitShipmentForm(event) {
+            event.preventDefault();
+            const form = document.getElementById('shipmentForm');
+
+            const record = {
+                id: Date.now(),
+                customer_name: form.customer_name.value.trim(),
+                company_name: form.company_name.value.trim(),
+                product_name: form.product_name.value,
+                completed_batch: form.completed_batch.value.trim(),
+                batches_shipped: parseInt(form.batches_shipped.value, 10) || 0,
+                shipment_measurement: parseFloat(form.shipment_measurement.value) || 0,
+                measurement_unit: form.measurement_unit.value,
+                expiry_date: form.expiry_date.value,
+                created_at: new Date().toISOString().split('T')[0]
+            };
+
+            if (!record.customer_name || !record.company_name || !record.product_name) {
+                showMessage('Please fill in all required fields.', 'error');
+                return false;
+            }
+
+            const shipments = getShipments();
+            shipments.push(record);
+            saveShipments(shipments);
+
+            showMessage('Shipment recorded successfully!', 'success');
+            App.triggerNotification("Shipment Recorded", `${record.product_name} shipped to ${record.company_name} — ${record.shipment_measurement} ${record.measurement_unit}.`, "success");
+            form.reset();
+            loadStats();
+            return false;
+        }
+
+        function cancelForm() {
+            document.getElementById('shipmentForm').reset();
+            const msg = document.getElementById('formMessage');
+            msg.style.display = 'none';
+        }
+
+        function showMessage(message, type = 'success') {
+            const formMessage = document.getElementById('formMessage');
+            formMessage.className = `alert alert-${type}`;
+            formMessage.textContent = message;
+            formMessage.style.display = 'block';
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

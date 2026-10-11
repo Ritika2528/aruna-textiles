@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts & Notifications - Production Monitoring System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+    <style>
+        /* ── Page-specific styles ── */
+        .notif-page-card {
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-raised);
+            padding: 20px 22px 22px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: all var(--transition-fast);
+            animation: slideCardIn 0.35s ease-out;
+        }
+        .notif-page-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-raised-lg);
+        }
+        @keyframes slideCardIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .notif-page-card .card-icon {
+            width: 44px; height: 44px; min-width: 44px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+            box-shadow: var(--shadow-raised-sm);
+        }
+        .notif-page-card.type-critical { border-left: 5px solid var(--color-danger); }
+        .notif-page-card.type-critical .card-icon { background: var(--color-danger-soft); color: var(--color-danger); }
+
+        .notif-page-card.type-warning { border-left: 5px solid var(--color-warning); }
+        .notif-page-card.type-warning .card-icon { background: var(--color-warning-soft); color: var(--color-warning); }
+
+        .notif-page-card.type-info { border-left: 5px solid var(--color-primary); }
+        .notif-page-card.type-info .card-icon { background: var(--color-primary-soft); color: var(--color-primary); }
+
+        .notif-page-card.type-success { border-left: 5px solid var(--color-success); }
+        .notif-page-card.type-success .card-icon { background: var(--color-success-soft); color: var(--color-success); }
+
+        .card-body { flex: 1; min-width: 0; }
+        .card-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--color-text-primary); }
+        .card-body p  { font-size: 13px; color: var(--color-text-secondary); line-height: 1.45; margin-bottom: 6px; }
+        .card-body small { font-size: 11px; color: var(--color-text-muted); font-weight: 500; }
+
+        .badge-pill {
+            padding: 4px 12px; border-radius: var(--radius-pill);
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            flex-shrink: 0; align-self: center;
+        }
+        .badge-critical { background: var(--color-danger-soft); color: var(--color-danger); border: 1px solid rgba(162,62,53,0.35); }
+        .badge-warning  { background: var(--color-warning-soft); color: var(--color-warning); border: 1px solid rgba(170,122,50,0.35); }
+        .badge-info     { background: var(--color-primary-soft); color: var(--color-primary); border: 1px solid rgba(7,91,91,0.35); }
+        .badge-success  { background: var(--color-success-soft); color: var(--color-success); border: 1px solid rgba(56,108,83,0.35); }
+
+        .filter-bar {
+            display: flex; gap: 10px; flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .filter-chip {
+            padding: 7px 18px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--color-border);
+            background: var(--color-surface-raised); color: var(--color-text-secondary);
+            box-shadow: var(--shadow-raised-sm);
+            transition: all var(--transition-fast);
+        }
+        .filter-chip:hover, .filter-chip.active {
+            background: var(--color-primary-soft); color: var(--color-primary);
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+        }
+        .alert-header-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+        }
+        .generate-btn {
+            background: var(--color-primary);
+            color: var(--color-text-inverse); border: none;
+            padding: 10px 22px; border-radius: var(--radius-pill);
+            font-size: 12.5px; font-weight: 700;
+            cursor: pointer; transition: all var(--transition-fast);
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: var(--shadow-raised-sm);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .generate-btn:hover { background: var(--color-primary-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(7,91,91,0.3); color: #fff; }
+        #alertContainer { min-height: 200px; }
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            color: var(--color-text-muted);
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; color: var(--color-text-muted); }
+        .empty-state p { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <span>ARUNA</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="production_monitoring.html" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Production Monitoring</span>
+            </a>
+            <a href="sales.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales</span>
+            </a>
+            <a href="transaction.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="workforce.html" class="nav-item">
+                <i class="fas fa-hard-hat"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="customer_form.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customer Form</span>
+            </a>
+            <a href="production_form.html" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Production Form</span>
+            </a>
+            <a href="supplier_input.html" class="nav-item">
+                <i class="fas fa-truck-loading"></i>
+                <span>Supplier Input</span>
+            </a>
+            <a href="shipment.html" class="nav-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Shipment</span>
+            </a>
+            <a href="data_view.html" class="nav-item">
+                <i class="fas fa-database"></i>
+                <span>Data</span>
+            </a>
+            <a href="notification.html" class="nav-item active">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="page-title"><i class="fas fa-bell" style="color: var(--accent-cyan); margin-right:10px;"></i>Alerts &amp; Notifications</h1>
+                <div class="header-info">
+                    <span class="time-display" id="timeDisplay"></span>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- Alert header row -->
+            <div class="alert-header-row">
+                <div class="filter-bar">
+                    <button class="filter-chip active" data-filter="all" onclick="filterAlerts('all', this)">All</button>
+                    <button class="filter-chip" data-filter="critical" onclick="filterAlerts('critical', this)">
+                        <i class="fas fa-exclamation-circle"></i> Critical
+                    </button>
+                    <button class="filter-chip" data-filter="warning" onclick="filterAlerts('warning', this)">
+                        <i class="fas fa-exclamation-triangle"></i> Warning
+                    </button>
+                    <button class="filter-chip" data-filter="info" onclick="filterAlerts('info', this)">
+                        <i class="fas fa-info-circle"></i> Info
+                    </button>
+                    <button class="filter-chip" data-filter="success" onclick="filterAlerts('success', this)">
+                        <i class="fas fa-check-circle"></i> Success
+                    </button>
+                </div>
+                <button class="generate-btn" onclick="generateAlert()">
+                    <i class="fas fa-plus"></i> Generate Alert
+                </button>
+            </div>
+
+            <!-- Alert List -->
+            <div id="alertContainer"></div>
+        </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            App.requireLogin();
+            updateTime();
+            setInterval(updateTime, 1000);
+            renderInitialAlerts();
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            document.getElementById('timeDisplay').textContent = `${dateString} ${timeString}`;
+        }
+
+        let allAlerts = [];
+        let currentFilter = 'all';
+
+        const ICON_MAP = {
+            critical: 'fa-exclamation-circle',
+            warning:  'fa-exclamation-triangle',
+            info:     'fa-info-circle',
+            success:  'fa-check-circle'
+        };
+
+        function renderInitialAlerts() {
+            allAlerts = [
+                { title: 'Machine M001 Failure',    msg: 'Ring Frame overheating detected.', type: 'critical', time: '08:30 AM' },
+                { title: 'Low Production – M002',   msg: 'Output dropped below expected level.', type: 'warning', time: '09:10 AM' },
+                { title: 'Maintenance Reminder',    msg: 'Carding Machine scheduled check due.', type: 'info',    time: '10:00 AM' },
+                { title: 'Task Completed',           msg: 'Quality Inspection Report has been completed.', type: 'success', time: '10:45 AM' },
+                { title: 'Low Stock Warning',        msg: 'Cotton Inventory is below the minimum threshold.', type: 'warning', time: '11:15 AM' }
+            ];
+            renderAlerts();
+        }
+
+        function renderAlerts() {
+            const container = document.getElementById('alertContainer');
+            const filtered = currentFilter === 'all'
+                ? allAlerts
+                : allAlerts.filter(a => a.type === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No ${currentFilter === 'all' ? '' : currentFilter} alerts at the moment.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            [...filtered].reverse().forEach(alert => {
+                container.appendChild(buildCard(alert));
+            });
+        }
+
+        function buildCard(alert) {
+            const div = document.createElement('div');
+            div.className = `notif-page-card type-${alert.type}`;
+            div.innerHTML = `
+                <div class="card-icon"><i class="fas ${ICON_MAP[alert.type] || 'fa-bell'}"></i></div>
+                <div class="card-body">
+                    <h3>${alert.title}</h3>
+                    <p>${alert.msg}</p>
+                    <small><i class="fas fa-clock"></i> ${alert.time}</small>
+                </div>
+                <span class="badge-pill badge-${alert.type}">${alert.type.charAt(0).toUpperCase() + alert.type.slice(1)}</span>
+            `;
+            return div;
+        }
+
+        function filterAlerts(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            renderAlerts();
+        }
+
+        const GENERATE_POOL = [
+            { title: 'Machine M003 Stopped',  msg: 'Spinning frame suddenly stopped.',        type: 'critical' },
+            { title: 'High Waste Detected',   msg: 'Waste percentage increased above 8%.',     type: 'warning' },
+            { title: 'New Order Received',    msg: 'Customer order #ORD-2098 added.',          type: 'info' },
+            { title: 'Shift Started',         msg: 'Morning shift checked in successfully.',   type: 'success' },
+            { title: 'Power Fluctuation',     msg: 'Power supply unstable on Floor B.',        type: 'warning' },
+            { title: 'Maintenance Complete',  msg: 'Machine M004 serviced and back online.',   type: 'success' }
+        ];
+
+        function generateAlert() {
+            const pick = GENERATE_POOL[Math.floor(Math.random() * GENERATE_POOL.length)];
+            const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const alert = { ...pick, time: now };
+            allAlerts.push(alert);
+
+            // Also trigger real-time notification
+            if (window.App && App.triggerNotification) {
+                App.triggerNotification(alert.title, alert.msg, alert.type === 'critical' ? 'error' : alert.type);
+            }
+
+            renderAlerts();
+        }
+    </script>
+</body>
+</html>

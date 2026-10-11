@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Production Monitoring System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <span>ARUNA</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="production_monitoring.html" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Production Monitoring</span>
+            </a>
+            <a href="sales.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales</span>
+            </a>
+            <a href="analysis.html" class="nav-item">
+                <i class="fas fa-microscope"></i>
+                <span>Analysis</span>
+            </a>
+            <a href="transaction.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="inventory.html" class="nav-item active">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="workforce.html" class="nav-item">
+                <i class="fas fa-hard-hat"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="customer_form.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customer Form</span>
+            </a>
+            <a href="production_form.html" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Production Form</span>
+            </a>
+            <a href="supplier_input.html" class="nav-item">
+                <i class="fas fa-truck-loading"></i>
+                <span>Supplier Input</span>
+            </a>
+            <a href="shipment.html" class="nav-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Shipment</span>
+            </a>
+            <a href="data_view.html" class="nav-item">
+                <i class="fas fa-database"></i>
+                <span>Data</span>
+            </a>
+            <a href="notification.html" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="page-title">Inventory Management</h1>
+                <div class="header-info">
+                    <span class="time-display" id="timeDisplay"></span>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- REORDER ALERTS BANNER -->
+            <div id="reorderAlertsBanner" class="inv-alerts-banner" style="display:none;">
+                <div class="inv-alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="inv-alert-text">
+                    <strong>Reorder Alerts:</strong>
+                    <span id="reorderAlertText"></span>
+                </div>
+                <button onclick="document.getElementById('reorderAlertsBanner').style.display='none'" class="inv-alert-close"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon production">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalCotton">0 kg</div>
+                        <div class="stat-label">Total Cotton Stock</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up"></i> Raw Material</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon efficiency">
+                        <i class="fas fa-wind"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalYarn">0 kg</div>
+                        <div class="stat-label">Total Yarn Stock</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up"></i> Finished Goods</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon machines">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalConsumed">0 kg</div>
+                        <div class="stat-label">Total Consumed (MTD)</div>
+                        <div class="stat-change down"><i class="fas fa-arrow-down"></i> Month to Date</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon downtime">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="reorderCount">0</div>
+                        <div class="stat-label">Reorder Alerts</div>
+                        <div class="stat-change down"><i class="fas fa-exclamation-circle"></i> Action Needed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TWO-COLUMN GRID -->
+            <div class="charts-grid">
+
+                <!-- COTTON INVENTORY TABLE -->
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-leaf"></i> Cotton Inventory</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openAddModal('cotton')">
+                            <i class="fas fa-plus"></i> Add Stock
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Stock (kg)</th>
+                                    <th>Min Level</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cottonTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- YARN INVENTORY TABLE -->
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-wind"></i> Yarn Inventory</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openAddModal('yarn')">
+                            <i class="fas fa-plus"></i> Add Stock
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Stock (kg)</th>
+                                    <th>Min Level</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yarnTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div><!-- end charts-grid -->
+
+            <!-- CONSUMPTION REPORT + CHART -->
+            <div class="charts-grid" style="margin-top:24px;">
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-fire"></i> Material Consumption Report</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Material</th>
+                                    <th>Type</th>
+                                    <th>Consumed (kg)</th>
+                                    <th>Machine</th>
+                                </tr>
+                            </thead>
+                            <tbody id="consumptionTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Stock Distribution</h3>
+                    </div>
+                    <canvas id="stockChart" height="220"></canvas>
+                </div>
+
+            </div><!-- end second charts-grid -->
+
+        </div><!-- end content -->
+    </div><!-- end main-container -->
+
+    <!-- ADD STOCK MODAL -->
+    <div id="addStockModal" class="inv-modal-overlay" style="display:none;">
+        <div class="inv-modal">
+            <div class="inv-modal-header">
+                <h3 id="modalTitle"><i class="fas fa-plus-circle"></i> Add Stock</h3>
+                <button onclick="closeAddModal()" class="inv-modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="addStockForm" onsubmit="submitAddStock(event)">
+                <input type="hidden" id="stockType">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-tag"></i> Item Type</label>
+                        <input type="text" id="itemType" class="form-input" placeholder="e.g. Long Staple Cotton" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-weight"></i> Quantity (kg)</label>
+                        <input type="number" id="itemQty" class="form-input" placeholder="500" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-arrow-down"></i> Minimum Level (kg)</label>
+                        <input type="number" id="itemMinLevel" class="form-input" placeholder="100" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-warehouse"></i> Location</label>
+                        <input type="text" id="itemLocation" class="form-input" placeholder="Warehouse A">
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:10px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Save Stock</button>
+                    <button type="button" onclick="closeAddModal()" class="btn btn-secondary" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        /* ---- Inventory-specific styles ---- */
+        .inv-alerts-banner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(224, 122, 95, 0.12);
+            border: 1px solid rgba(224, 122, 95, 0.4);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            animation: slideIn .5s ease;
+        }
+        .inv-alert-icon { font-size: 22px; color: var(--accent-pink); flex-shrink: 0; }
+        .inv-alert-text { flex: 1; color: var(--text-secondary); font-size: 14px; }
+        .inv-alert-close {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 16px; padding: 4px;
+        }
+        .inv-alert-close:hover { color: var(--accent-pink); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-ok       { background: rgba(163,177,138,.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .status-low      { background: rgba(212,163,115,.15); color: var(--accent-cyan);  border: 1px solid var(--accent-cyan); }
+        .status-critical { background: rgba(224,122,95,.15);  color: var(--accent-pink);  border: 1px solid var(--accent-pink); }
+
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .btn-danger { background: rgba(224,122,95,.15); color: var(--accent-pink); border: 1px solid rgba(224,122,95,.3); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+        .btn-danger:hover { background: rgba(224,122,95,.3); }
+
+        /* Modal */
+        .inv-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn .2s ease;
+        }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        .inv-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 32px;
+            width: 100%;
+            max-width: 540px;
+            box-shadow: var(--shadow-glow);
+            animation: slideIn .3s ease;
+        }
+        .inv-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .inv-modal-header h3 { color: var(--accent-cyan); font-size: 18px; }
+        .inv-modal-close {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 18px;
+        }
+        .inv-modal-close:hover { color: var(--accent-pink); }
+    </style>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        App.requireLogin();
+
+        /* ---- Time ---- */
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('timeDisplay').textContent =
+                now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) + ' ' +
+                now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+        }
+
+        /* ---- Sample inventory data (localStorage-backed) ---- */
+        const INV_COTTON_KEY = 'pm_cotton_inventory';
+        const INV_YARN_KEY   = 'pm_yarn_inventory';
+        const INV_CONSUMPTION_KEY = 'pm_consumption';
+
+        const SAMPLE_COTTON = [
+            { id:'COT001', type:'Long Staple Cotton', stock:1200, minLevel:300, location:'Warehouse A' },
+            { id:'COT002', type:'Short Staple Cotton', stock:450, minLevel:500, location:'Warehouse A' },
+            { id:'COT003', type:'Egyptian Cotton',    stock:80,  minLevel:200, location:'Warehouse B' },
+            { id:'COT004', type:'Organic Cotton',     stock:620, minLevel:150, location:'Warehouse B' },
+        ];
+
+        const SAMPLE_YARN = [
+            { id:'YRN001', type:'Cotton Yarn (20s)',  stock:880, minLevel:200, location:'Store 1' },
+            { id:'YRN002', type:'Polyester Blend',    stock:115, minLevel:300, location:'Store 1' },
+            { id:'YRN003', type:'Silk Blend Yarn',    stock:560, minLevel:100, location:'Store 2' },
+            { id:'YRN004', type:'Wool Blend Yarn',    stock:40,  minLevel:150, location:'Store 2' },
+        ];
+
+        const SAMPLE_CONSUMPTION = [
+            { date:'2026-06-28', material:'Cotton', type:'Long Staple Cotton', consumed:120, machine:'M001' },
+            { date:'2026-06-29', material:'Cotton', type:'Short Staple Cotton', consumed:95,  machine:'M002' },
+            { date:'2026-06-30', material:'Yarn',   type:'Cotton Yarn (20s)',  consumed:200, machine:'M003' },
+            { date:'2026-07-01', material:'Cotton', type:'Egyptian Cotton',    consumed:60,  machine:'M001' },
+            { date:'2026-07-01', material:'Yarn',   type:'Polyester Blend',   consumed:180, machine:'M004' },
+            { date:'2026-07-02', material:'Cotton', type:'Organic Cotton',     consumed:75,  machine:'M002' },
+            { date:'2026-07-02', material:'Yarn',   type:'Silk Blend Yarn',   consumed:140, machine:'M003' },
+        ];
+
+        function initInventoryData() {
+            if (!localStorage.getItem(INV_COTTON_KEY))
+                localStorage.setItem(INV_COTTON_KEY, JSON.stringify(SAMPLE_COTTON));
+            if (!localStorage.getItem(INV_YARN_KEY))
+                localStorage.setItem(INV_YARN_KEY, JSON.stringify(SAMPLE_YARN));
+            if (!localStorage.getItem(INV_CONSUMPTION_KEY))
+                localStorage.setItem(INV_CONSUMPTION_KEY, JSON.stringify(SAMPLE_CONSUMPTION));
+        }
+
+        function getCotton()      { return JSON.parse(localStorage.getItem(INV_COTTON_KEY) || '[]'); }
+        function getYarn()        { return JSON.parse(localStorage.getItem(INV_YARN_KEY)   || '[]'); }
+        function getConsumption() { return JSON.parse(localStorage.getItem(INV_CONSUMPTION_KEY) || '[]'); }
+        function saveCotton(d)    { localStorage.setItem(INV_COTTON_KEY, JSON.stringify(d)); }
+        function saveYarn(d)      { localStorage.setItem(INV_YARN_KEY,   JSON.stringify(d)); }
+
+        /* ---- Status helpers ---- */
+        function getStatus(stock, minLevel) {
+            const ratio = stock / minLevel;
+            if (ratio >= 1.5) return { label:'OK',       cls:'status-ok' };
+            if (ratio >= 1.0) return { label:'Low',      cls:'status-low' };
+            return               { label:'Critical',   cls:'status-critical' };
+        }
+
+        /* ---- Render tables ---- */
+        function renderCotton() {
+            const cotton = getCotton();
+            const tbody = document.getElementById('cottonTableBody');
+            tbody.innerHTML = '';
+            cotton.forEach((row, i) => {
+                const st = getStatus(row.stock, row.minLevel);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${row.id}</strong></td>
+                    <td>${row.type}</td>
+                    <td>${row.stock.toLocaleString()}</td>
+                    <td>${row.minLevel.toLocaleString()}</td>
+                    <td><span class="status-badge ${st.cls}">${st.label}</span></td>
+                    <td><button class="btn-danger" onclick="deleteItem('cotton',${i})"><i class="fas fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderYarn() {
+            const yarn = getYarn();
+            const tbody = document.getElementById('yarnTableBody');
+            tbody.innerHTML = '';
+            yarn.forEach((row, i) => {
+                const st = getStatus(row.stock, row.minLevel);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${row.id}</strong></td>
+                    <td>${row.type}</td>
+                    <td>${row.stock.toLocaleString()}</td>
+                    <td>${row.minLevel.toLocaleString()}</td>
+                    <td><span class="status-badge ${st.cls}">${st.label}</span></td>
+                    <td><button class="btn-danger" onclick="deleteItem('yarn',${i})"><i class="fas fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderConsumption() {
+            const data = getConsumption();
+            const tbody = document.getElementById('consumptionTableBody');
+            tbody.innerHTML = '';
+            [...data].reverse().forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.date}</td>
+                    <td>${row.material}</td>
+                    <td>${row.type}</td>
+                    <td>${row.consumed} kg</td>
+                    <td>${row.machine}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* ---- Stats & Alerts ---- */
+        function renderStats() {
+            const cotton = getCotton();
+            const yarn   = getYarn();
+            const consumption = getConsumption();
+
+            const totalCotton = cotton.reduce((s,r) => s + r.stock, 0);
+            const totalYarn   = yarn.reduce((s,r) => s + r.stock, 0);
+            const totalConsumed = consumption.reduce((s,r) => s + r.consumed, 0);
+
+            const alerts = [
+                ...cotton.filter(r => r.stock < r.minLevel).map(r => r.type),
+                ...yarn.filter(r => r.stock < r.minLevel).map(r => r.type),
+            ];
+
+            document.getElementById('totalCotton').textContent  = totalCotton.toLocaleString() + ' kg';
+            document.getElementById('totalYarn').textContent    = totalYarn.toLocaleString() + ' kg';
+            document.getElementById('totalConsumed').textContent = totalConsumed.toLocaleString() + ' kg';
+            document.getElementById('reorderCount').textContent  = alerts.length;
+
+            const banner = document.getElementById('reorderAlertsBanner');
+            if (alerts.length > 0) {
+                document.getElementById('reorderAlertText').textContent = alerts.join(', ') + ' — stocks below minimum!';
+                banner.style.display = 'flex';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        /* ---- Chart ---- */
+        let stockChartInstance = null;
+        function renderChart() {
+            const cotton = getCotton();
+            const yarn   = getYarn();
+            const labels = [
+                ...cotton.map(r => r.type.split(' ').slice(0,2).join(' ')),
+                ...yarn.map(r => r.type.split(' ').slice(0,2).join(' ')),
+            ];
+            const data = [
+                ...cotton.map(r => r.stock),
+                ...yarn.map(r => r.stock),
+            ];
+            const colors = [
+                '#d4a373','#a98467','#c9a96e','#b88a55',   // cotton shades
+                '#a3b18a','#758a63','#8fa97a','#6b7f4e',   // yarn shades
+            ];
+
+            if (stockChartInstance) stockChartInstance.destroy();
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            stockChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: 'transparent' }] },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary'), font: { size: 11 }, padding: 12 } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} kg` } }
+                    }
+                }
+            });
+        }
+        window.addEventListener('themechange', () => { renderChart(); });
+
+        /* ---- Delete ---- */
+        function deleteItem(kind, idx) {
+            if (!confirm('Delete this inventory item?')) return;
+            if (kind === 'cotton') {
+                const d = getCotton(); d.splice(idx, 1); saveCotton(d);
+            } else {
+                const d = getYarn(); d.splice(idx, 1); saveYarn(d);
+            }
+            renderAll();
+        }
+
+        /* ---- Add Modal ---- */
+        let currentModalType = '';
+        function openAddModal(type) {
+            currentModalType = type;
+            document.getElementById('stockType').value = type;
+            document.getElementById('modalTitle').innerHTML =
+                `<i class="fas fa-plus-circle"></i> Add ${type === 'cotton' ? 'Cotton' : 'Yarn'} Stock`;
+            document.getElementById('addStockForm').reset();
+            document.getElementById('addStockModal').style.display = 'flex';
+        }
+        function closeAddModal() {
+            document.getElementById('addStockModal').style.display = 'none';
+        }
+        function submitAddStock(e) {
+            e.preventDefault();
+            const type     = document.getElementById('stockType').value;
+            const itemType = document.getElementById('itemType').value.trim();
+            const qty      = parseInt(document.getElementById('itemQty').value);
+            const minLevel = parseInt(document.getElementById('itemMinLevel').value);
+            const location = document.getElementById('itemLocation').value.trim() || 'Warehouse A';
+
+            if (type === 'cotton') {
+                const d = getCotton();
+                const id = 'COT' + String(d.length + 1).padStart(3, '0');
+                d.push({ id, type: itemType, stock: qty, minLevel, location });
+                saveCotton(d);
+            } else {
+                const d = getYarn();
+                const id = 'YRN' + String(d.length + 1).padStart(3, '0');
+                d.push({ id, type: itemType, stock: qty, minLevel, location });
+                saveYarn(d);
+            }
+            closeAddModal();
+            renderAll();
+        }
+
+        function renderAll() {
+            renderStats();
+            renderCotton();
+            renderYarn();
+            renderConsumption();
+            renderChart();
+        }
+
+        /* ---- Init ---- */
+        document.addEventListener('DOMContentLoaded', () => {
+            initInventoryData();
+            renderAll();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+    </script>
+</body>
+</html>

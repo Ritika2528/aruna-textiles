@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Management - Aruna Textiles</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../static/css/style.css">
+<script>
+(function(){
+    try {
+        var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+        var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.dataset.theme = t;
+    } catch(e){}
+})();
+</script>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-industry"></i>
+            <span>ARUNA</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="inventory.html" class="nav-item">
+            <i class="fas fa-boxes"></i>
+            <span>Inventory</span>
+        </a>
+        <a href="stock.html" class="nav-item active">
+            <i class="fas fa-warehouse"></i>
+            <span>Stock Management</span>
+        </a>
+        <a href="data_view.html" class="nav-item">
+            <i class="fas fa-database"></i>
+            <span>Data</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-container">
+    <header class="header">
+        <div class="header-content">
+            <h1 class="page-title">Stock Management</h1>
+            <div class="header-info">
+                <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme" aria-label="Toggle light or dark theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="data-card">
+            <div class="card-header">
+                <h3><i class="fas fa-cubes"></i> Raw Material Inventory</h3>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Material Name</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>M001</strong></td>
+                            <td>Cotton</td>
+                            <td>1200</td>
+                            <td>Kg</td>
+                            <td>Lakshmi Mills</td>
+                            <td><span class="status completed">In Stock</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>M002</strong></td>
+                            <td>Polyester</td>
+                            <td>800</td>
+                            <td>Kg</td>
+                            <td>Global Spun</td>
+                            <td><span class="status pending">Low Stock</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>M003</strong></td>
+                            <td>Yarn Spools</td>
+                            <td>0</td>
+                            <td>Kg</td>
+                            <td>RK Mills</td>
+                            <td><span class="status incomplete">Out of Stock</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../static/js/app.js"></script>
+</body>
+</html>

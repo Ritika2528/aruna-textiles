@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales - Production Monitoring System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <span>ARUNA</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="production_monitoring.html" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Production Monitoring</span>
+            </a>
+            <a href="sales.html" class="nav-item active">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales</span>
+            </a>
+            <a href="analysis.html" class="nav-item">
+                <i class="fas fa-microscope"></i>
+                <span>Analysis</span>
+            </a>
+            <a href="transaction.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="workforce.html" class="nav-item">
+                <i class="fas fa-hard-hat"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="customer_form.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customer Form</span>
+            </a>
+            <a href="production_form.html" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Production Form</span>
+            </a>
+            <a href="supplier_input.html" class="nav-item">
+                <i class="fas fa-truck-loading"></i>
+                <span>Supplier Input</span>
+            </a>
+            <a href="shipment.html" class="nav-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Shipment</span>
+            </a>
+            <a href="data_view.html" class="nav-item">
+                <i class="fas fa-database"></i>
+                <span>Data</span>
+            </a>
+            <a href="notification.html" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="page-title">Sales Analytics</h1>
+                <div class="header-info">
+                    <span class="time-display" id="timeDisplay"></span>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <!-- STATS CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon production">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalSalesAmount">₹3,20,000</div>
+                        <div class="stat-label">Total Sales Amount</div>
+                        <div class="stat-change up">
+                            <i class="fas fa-arrow-up"></i> This Month
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon efficiency">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="salesRate">18%</div>
+                        <div class="stat-label">Sales Growth Rate</div>
+                        <div class="stat-change up">
+                            <i class="fas fa-arrow-up"></i> vs Last Month
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon machines">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="weeklySales">₹44,800</div>
+                        <div class="stat-label">Weekly Sales</div>
+                        <div class="stat-change stable">
+                            <i class="fas fa-minus"></i> This Week
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon downtime">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="monthlySales">₹70,000</div>
+                        <div class="stat-label">Monthly Sales</div>
+                        <div class="stat-change up">
+                            <i class="fas fa-arrow-up"></i> This Month
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFIT/LOSS SECTION -->
+            <div class="data-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> Financial Overview</h3>
+                </div>
+                <div class="financial-overview">
+                    <div class="financial-item">
+                        <div class="financial-label">Total Revenue</div>
+                        <div class="financial-value" id="totalRevenue">₹3,20,000</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="financial-label">Total Cost</div>
+                        <div class="financial-value" id="totalCost">₹2,10,000</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="financial-label profit-status" id="profitLossStatus">Profit/Loss</div>
+                        <div class="financial-value profit" id="profitLoss">₹1,10,000</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCT PERFORMANCE -->
+            <div class="data-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-box"></i> Product Performance</h3>
+                </div>
+                <div class="product-performance">
+                    <div class="product-item">
+                        <div class="product-header">
+                            <h4><i class="fas fa-star"></i> Most Sold Product</h4>
+                        </div>
+                        <div class="product-details">
+                            <div class="product-name" id="mostSoldProduct">-</div>
+                            <div class="product-info">
+                                <span class="product-units" id="mostSoldUnits">0 kg</span>
+                                <span class="product-amount" id="mostSoldAmount">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-item">
+                        <div class="product-header">
+                            <h4><i class="fas fa-arrow-down"></i> Least Sold Product</h4>
+                        </div>
+                        <div class="product-details">
+                            <div class="product-name" id="leastSoldProduct">-</div>
+                            <div class="product-info">
+                                <span class="product-units" id="leastSoldUnits">0 kg</span>
+                                <span class="product-amount" id="leastSoldAmount">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SALES TABLE -->
+            <div class="data-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list"></i> Recent Sales Records</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Units Sold (kg)</th>
+                                <th>Sale Price (₹)</th>
+                                <th>Cost (₹)</th>
+                                <th>Profit (₹)</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            App.requireLogin();
+            updateTime();
+            renderSales();
+            setInterval(updateTime, 1000);
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+            document.getElementById('timeDisplay').textContent = `${dateString} ${timeString}`;
+        }
+
+        const DEMO_SALES = [
+            {product_id:'P001', product_name:'Cotton Yarn',    units_sold:480, sale_price:32000, sale_date:'2026-01-15', cost:21000},
+            {product_id:'P002', product_name:'Polyester Blend',units_sold:350, sale_price:24500, sale_date:'2026-01-28', cost:16000},
+            {product_id:'P003', product_name:'Silk Blend',     units_sold:120, sale_price:18000, sale_date:'2026-02-10', cost:11500},
+            {product_id:'P004', product_name:'Wool Blend',     units_sold:200, sale_price:21000, sale_date:'2026-02-20', cost:14000},
+            {product_id:'P005', product_name:'Linen Yarn',     units_sold:160, sale_price:14000, sale_date:'2026-02-25', cost:9000},
+            {product_id:'P001', product_name:'Cotton Yarn',    units_sold:520, sale_price:36400, sale_date:'2026-03-05', cost:24000},
+            {product_id:'P002', product_name:'Polyester Blend',units_sold:380, sale_price:26600, sale_date:'2026-03-15', cost:17500},
+            {product_id:'P001', product_name:'Cotton Yarn',    units_sold:600, sale_price:42000, sale_date:'2026-05-20', cost:27000},
+            {product_id:'P001', product_name:'Cotton Yarn',    units_sold:640, sale_price:44800, sale_date:'2026-06-05', cost:29000},
+            {product_id:'P004', product_name:'Wool Blend',     units_sold:240, sale_price:25200, sale_date:'2026-06-15', cost:16500},
+        ];
+
+        async function renderSales() {
+            let sales;
+            try {
+                sales = await App.getSales();
+                if (!sales || sales.length === 0) sales = DEMO_SALES;
+            } catch(e) {
+                console.warn('Sales API failed, using demo data:', e);
+                sales = DEMO_SALES;
+            }
+            
+            // Calculate total sales amount
+            const totalSalesAmount = sales.reduce((sum, item) => sum + (item.sale_price || 0), 0);
+            document.getElementById('totalSalesAmount').textContent = '₹' + totalSalesAmount.toLocaleString();
+
+            // Calculate total units sold
+            const totalUnits = sales.reduce((sum, item) => sum + (item.units_sold || 0), 0);
+
+            // Calculate sales rate (average sale price per unit)
+            const averageSalePerUnit = totalUnits > 0 ? Math.round((totalSalesAmount / totalUnits) * 100) / 100 : 0;
+            let salesRate = averageSalePerUnit > 0 ? ((averageSalePerUnit / 30) * 100) : 0;
+            if (salesRate > 100) salesRate = 100;
+            
+            document.getElementById('salesRate').textContent = salesRate.toFixed(1) + '%';
+
+            // Calculate weekly sales (last 7 days)
+            const today = new Date();
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const weeklySales = sales
+                .filter(item => new Date(item.sale_date) >= weekAgo)
+                .reduce((sum, item) => sum + (item.sale_price || 0), 0);
+            document.getElementById('weeklySales').textContent = '₹' + weeklySales.toLocaleString();
+
+            // Calculate monthly sales (current month)
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const monthlySales = sales
+                .filter(item => {
+                    const itemDate = new Date(item.sale_date);
+                    return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
+                })
+                .reduce((sum, item) => sum + (item.sale_price || 0), 0);
+            document.getElementById('monthlySales').textContent = '₹' + monthlySales.toLocaleString();
+
+            // Calculate total revenue and cost
+            const totalRevenue = sales.reduce((sum, item) => sum + (item.sale_price || 0), 0);
+            const totalCost = sales.reduce((sum, item) => sum + (item.cost || 0), 0);
+            const profitLoss = totalRevenue - totalCost;
+
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toLocaleString();
+            document.getElementById('totalCost').textContent = '₹' + totalCost.toLocaleString();
+            
+            const profitLossElement = document.getElementById('profitLoss');
+            const profitLossStatus = document.getElementById('profitLossStatus');
+            
+            if (profitLoss >= 0) {
+                profitLossElement.textContent = '₹' + profitLoss.toLocaleString();
+                profitLossElement.classList.add('profit');
+                profitLossElement.classList.remove('loss');
+                profitLossStatus.textContent = 'Profit';
+                profitLossStatus.classList.add('profit-status');
+                profitLossStatus.classList.remove('loss-status');
+            } else {
+                profitLossElement.textContent = '-₹' + Math.abs(profitLoss).toLocaleString();
+                profitLossElement.classList.add('loss');
+                profitLossElement.classList.remove('profit');
+                profitLossStatus.textContent = 'Loss';
+                profitLossStatus.classList.add('loss-status');
+                profitLossStatus.classList.remove('profit-status');
+            }
+
+            // Find most and least sold products
+            const productMap = {};
+            sales.forEach(item => {
+                if (!productMap[item.product_name]) {
+                    productMap[item.product_name] = {
+                        name: item.product_name,
+                        units: 0,
+                        totalAmount: 0
+                    };
+                }
+                productMap[item.product_name].units += item.units_sold;
+                productMap[item.product_name].totalAmount += item.sale_price;
+            });
+
+            const products = Object.values(productMap);
+            if (products.length > 0) {
+                const mostSold = products.reduce((max, current) => current.units > max.units ? current : max);
+                const leastSold = products.reduce((min, current) => current.units < min.units ? current : min);
+
+                document.getElementById('mostSoldProduct').textContent = mostSold.name;
+                document.getElementById('mostSoldUnits').textContent = mostSold.units + ' kg';
+                document.getElementById('mostSoldAmount').textContent = '₹' + mostSold.totalAmount.toLocaleString();
+
+                document.getElementById('leastSoldProduct').textContent = leastSold.name;
+                document.getElementById('leastSoldUnits').textContent = leastSold.units + ' kg';
+                document.getElementById('leastSoldAmount').textContent = '₹' + leastSold.totalAmount.toLocaleString();
+            }
+
+            renderSalesTable(sales);
+        }
+
+        function renderSalesTable(records) {
+            const tbody = document.getElementById('salesTableBody');
+            tbody.innerHTML = '';
+
+            records.forEach(record => {
+                const profit = record.sale_price - record.cost;
+                const profitClass = profit >= 0 ? 'profit' : 'loss';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${record.product_id}</strong></td>
+                    <td>${record.product_name}</td>
+                    <td>${record.units_sold}</td>
+                    <td>₹${record.sale_price.toLocaleString()}</td>
+                    <td>₹${record.cost.toLocaleString()}</td>
+                    <td><span class="profit-indicator ${profitClass}">₹${profit.toLocaleString()}</span></td>
+                    <td>${new Date(record.sale_date).toLocaleDateString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualization - Aruna Textiles</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../static/css/style.css">
+<script>
+(function(){
+    try {
+        var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+        var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.dataset.theme = t;
+    } catch(e){}
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.charts-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 22px;
+}
+.chart-box {
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-raised);
+    padding: 24px;
+}
+.chart-box h3 {
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.chart-box h3 i {
+    color: var(--color-primary);
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-industry"></i>
+            <span>ARUNA</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="production_monitoring.html" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            <span>Production Monitoring</span>
+        </a>
+        <a href="sales.html" class="nav-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Sales</span>
+        </a>
+        <a href="analysis.html" class="nav-item">
+            <i class="fas fa-microscope"></i>
+            <span>Analysis</span>
+        </a>
+        <a href="visualization.html" class="nav-item active">
+            <i class="fas fa-project-diagram"></i>
+            <span>Visualization</span>
+        </a>
+        <a href="customer_form.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Customer Form</span>
+        </a>
+        <a href="production_form.html" class="nav-item">
+            <i class="fas fa-user-tie"></i>
+            <span>Production Form</span>
+        </a>
+        <a href="data_view.html" class="nav-item">
+            <i class="fas fa-database"></i>
+            <span>Data</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-container">
+    <header class="header">
+        <div class="header-content">
+            <h1 class="page-title">Data Visualization</h1>
+            <div class="header-info">
+                <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme" aria-label="Toggle light or dark theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="charts-grid-2x2">
+
+            <!-- Production Chart -->
+            <div class="chart-box">
+                <h3><i class="fas fa-chart-bar"></i> Daily Production</h3>
+                <canvas id="productionChart" height="200"></canvas>
+            </div>
+
+            <!-- Machine Efficiency -->
+            <div class="chart-box">
+                <h3><i class="fas fa-tachometer-alt"></i> Machine Efficiency</h3>
+                <canvas id="efficiencyChart" height="200"></canvas>
+            </div>
+
+            <!-- Order Status -->
+            <div class="chart-box">
+                <h3><i class="fas fa-chart-pie"></i> Order Status</h3>
+                <canvas id="orderChart" height="200"></canvas>
+            </div>
+
+            <!-- Yarn Output -->
+            <div class="chart-box">
+                <h3><i class="fas fa-dot-circle"></i> Yarn Output</h3>
+                <canvas id="yarnChart" height="200"></canvas>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="../static/js/app.js"></script>
+<script>
+const productionData = [120, 200, 150, 300, 250, 400];
+const efficiencyData = [60, 70, 80, 65];
+const orderData = [5, 3, 2];
+const yarnData = [300, 200, 150, 100];
+
+let chartInsts = [];
+function renderAllCharts() {
+    chartInsts.forEach(c => { try { c.destroy(); } catch(e){} });
+    chartInsts = [];
+    
+    const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+    const textCol = isDark ? '#F0EEE5' : '#201F1B';
+    const tickCol = isDark ? '#9A9F94' : '#746D60';
+    const gridCol = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(107,91,65,0.12)';
+    const tealP = isDark ? '#65BDB4' : '#075B5B';
+    const greenS = isDark ? '#8BC5A1' : '#386C53';
+    const amberW = isDark ? '#E7BD78' : '#AA7A32';
+    const tealS = isDark ? '#91C7D0' : '#315E65';
+
+    chartInsts.push(new Chart(document.getElementById("productionChart"), {
+        type: "bar",
+        data: {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            datasets: [{
+                label: "Production (Kg)",
+                data: productionData,
+                backgroundColor: tealP,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            plugins: { legend: { labels: { color: textCol } } },
+            scales: {
+                x: { ticks: { color: tickCol }, grid: { color: gridCol } },
+                y: { ticks: { color: tickCol }, grid: { color: gridCol } }
+            }
+        }
+    }));
+
+    chartInsts.push(new Chart(document.getElementById("efficiencyChart"), {
+        type: "line",
+        data: {
+            labels: ["M1", "M2", "M3", "M4"],
+            datasets: [{
+                label: "Efficiency %",
+                data: efficiencyData,
+                borderColor: greenS,
+                backgroundColor: isDark ? 'rgba(139,197,161,0.15)' : 'rgba(56,108,83,0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            plugins: { legend: { labels: { color: textCol } } },
+            scales: {
+                x: { ticks: { color: tickCol }, grid: { color: gridCol } },
+                y: { ticks: { color: tickCol }, grid: { color: gridCol } }
+            }
+        }
+    }));
+
+    chartInsts.push(new Chart(document.getElementById("orderChart"), {
+        type: "pie",
+        data: {
+            labels: ["Completed", "Processing", "Pending"],
+            datasets: [{
+                data: orderData,
+                backgroundColor: [greenS, tealP, amberW]
+            }]
+        },
+        options: {
+            plugins: { legend: { labels: { color: textCol } } }
+        }
+    }));
+
+    chartInsts.push(new Chart(document.getElementById("yarnChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Cotton", "Polyester", "Silk", "Blend"],
+            datasets: [{
+                data: yarnData,
+                backgroundColor: [tealP, tealS, amberW, isDark ? '#5A635E' : '#A39985']
+            }]
+        },
+        options: {
+            plugins: { legend: { labels: { color: textCol } } }
+        }
+    }));
+}
+
+renderAllCharts();
+window.addEventListener('themechange', renderAllCharts);
+</script>
+
+</body>
+</html>

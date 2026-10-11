@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Monitoring - Production System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>
+        (function(){
+            try {
+                var s = localStorage.getItem('app-theme') || localStorage.getItem('pm_theme');
+                var t = s || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.dataset.theme = t;
+            } catch(e){}
+        })();
+    </script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <span>ARUNA</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="production_monitoring.html" class="nav-item active">
+                <i class="fas fa-cogs"></i>
+                <span>Production Monitoring</span>
+            </a>
+            <a href="sales.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales</span>
+            </a>
+            <a href="analysis.html" class="nav-item">
+                <i class="fas fa-microscope"></i>
+                <span>Analysis</span>
+            </a>
+            <a href="transaction.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="workforce.html" class="nav-item">
+                <i class="fas fa-hard-hat"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="customer_form.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customer Form</span>
+            </a>
+            <a href="production_form.html" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Production Form</span>
+            </a>
+            <a href="supplier_input.html" class="nav-item">
+                <i class="fas fa-truck-loading"></i>
+                <span>Supplier Input</span>
+            </a>
+            <a href="shipment.html" class="nav-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Shipment</span>
+            </a>
+            <a href="data_view.html" class="nav-item">
+                <i class="fas fa-database"></i>
+                <span>Data</span>
+            </a>
+            <a href="notification.html" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item logout" onclick="App.logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="page-title">Production Monitoring</h1>
+                <div class="header-info">
+                    <span class="time-display" id="timeDisplay"></span>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <!-- FILTER & CONTROLS -->
+            <div class="filter-section">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="machineSearch" placeholder="Search by Machine ID or Type...">
+                </div>
+                <div class="filter-options">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Incomplete">Incomplete</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- STATS OVERVIEW -->
+            <div class="stats-mini">
+                <div class="mini-stat">
+                    <div class="mini-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="mini-value" id="completedCount">5</div>
+                        <div class="mini-label">Completed</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-icon">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                    <div>
+                        <div class="mini-value" id="processingCount">2</div>
+                        <div class="mini-label">Processing</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div>
+                        <div class="mini-value" id="incompleteCount">1</div>
+                        <div class="mini-label">Incomplete</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YARN OUTPUT BY COTTON TYPE -->
+            <div class="data-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list"></i> Yarn Output by Cotton Type</h3>
+                    <div class="filter-options">
+                        <select id="cottonTypeFilter" class="filter-select">
+                            <option value="">All Types</option>
+                            <option value="Cotton">Pure Cotton</option>
+                            <option value="Polyester">Polyester Blend</option>
+                            <option value="Silk">Silk Blend</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Production ID</th>
+                                <th>Machine ID</th>
+                                <th>Machine Type</th>
+                                <th>Quantity (Kg)</th>
+                                <th>Output Rate</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productionTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PRODUCTION SUMMARY -->
+            <div class="data-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Daily Production Summary</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-icon production">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div>
+                            <div class="summary-value" id="totalQuantity">1,970</div>
+                            <div class="summary-label">Total Quantity Produced</div>
+                        </div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-icon efficiency">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div>
+                            <div class="summary-value" id="avgQuantity">246</div>
+                            <div class="summary-label">Average per Machine</div>
+                        </div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-icon machines">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div>
+                            <div class="summary-value" id="totalMachines">8</div>
+                            <div class="summary-label">Total Machines</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+    <script>
+        let allProduction = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            App.requireLogin();
+            updateTime();
+            loadAllData();
+            setupFilters();
+            setInterval(updateTime, 1000);
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            document.getElementById('timeDisplay').textContent = `${dateString} ${timeString}`;
+        }
+
+        const DEMO_PRODUCTION = [
+            {production_id:'PROD001', machine_id:'M001', machine_type:'Ring Frame',      production_quantity:320, production_status:'Completed'},
+            {production_id:'PROD002', machine_id:'M002', machine_type:'Carding Machine', production_quantity:280, production_status:'Completed'},
+            {production_id:'PROD003', machine_id:'M003', machine_type:'Spinning Frame',  production_quantity:195, production_status:'Processing'},
+            {production_id:'PROD004', machine_id:'M004', machine_type:'Winding Machine', production_quantity:240, production_status:'Completed'},
+            {production_id:'PROD005', machine_id:'M005', machine_type:'Roving Frame',    production_quantity:160, production_status:'Incomplete'},
+            {production_id:'PROD006', machine_id:'M001', machine_type:'Ring Frame',      production_quantity:305, production_status:'Completed'},
+            {production_id:'PROD007', machine_id:'M002', machine_type:'Carding Machine', production_quantity:260, production_status:'Processing'},
+            {production_id:'PROD008', machine_id:'M003', machine_type:'Spinning Frame',  production_quantity:210, production_status:'Completed'},
+        ];
+
+        async function loadAllData() {
+            try {
+                allProduction = await App.getProduction();
+                if (!allProduction || allProduction.length === 0) allProduction = DEMO_PRODUCTION;
+            } catch(e) {
+                console.warn('Production API failed, using demo data:', e);
+                allProduction = DEMO_PRODUCTION;
+            }
+            updateStats();
+            renderTable(allProduction);
+        }
+
+        function updateStats() {
+            const completed = allProduction.filter(p => p.production_status === 'Completed').length;
+            const processing = allProduction.filter(p => p.production_status === 'Processing').length;
+            const incomplete = allProduction.filter(p => p.production_status === 'Incomplete').length;
+
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('processingCount').textContent = processing;
+            document.getElementById('incompleteCount').textContent = incomplete;
+
+            const totalQty = allProduction.reduce((sum, p) => sum + p.production_quantity, 0);
+            document.getElementById('totalQuantity').textContent = totalQty;
+            document.getElementById('avgQuantity').textContent = Math.round(totalQty / (allProduction.length || 1));
+            document.getElementById('totalMachines').textContent = allProduction.length;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('productionTableBody');
+            tbody.innerHTML = '';
+            data.forEach(record => {
+                const outputRate = (record.production_quantity * 0.85).toFixed(2);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${record.production_id}</strong></td>
+                    <td>${record.machine_id}</td>
+                    <td>${record.machine_type}</td>
+                    <td>${record.production_quantity}</td>
+                    <td>${outputRate} units/hr</td>
+                    <td><span class="status ${record.production_status.toLowerCase()}">${record.production_status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setupFilters() {
+            document.getElementById('machineSearch').addEventListener('input', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('machineSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allProduction.filter(p => {
+                const matchSearch = p.machine_id.toLowerCase().includes(searchTerm) || 
+                                   p.machine_type.toLowerCase().includes(searchTerm);
+                const matchStatus = !statusFilter || p.production_status === statusFilter;
+                return matchSearch && matchStatus;
+            });
+
+            renderTable(filtered);
+        }
+
+        let chart1Inst = null;
+        let chart2Inst = null;
+        function initCharts() {
+            if (chart1Inst) { try { chart1Inst.destroy(); } catch(e){} }
+            if (chart2Inst) { try { chart2Inst.destroy(); } catch(e){} }
+
+            const wasteCanvas = document.getElementById('wasteChart');
+            const effCanvas = document.getElementById('efficiencyChart');
+            if ((!wasteCanvas && !effCanvas) || typeof Chart === 'undefined') return;
+
+            const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+            const textCol = isDark ? '#C1C4BA' : '#57534A';
+            const gridCol = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(107, 91, 65, 0.12)';
+            const greenColor = isDark ? '#8BC5A1' : '#386C53';
+
+            // Waste Chart
+            if (wasteCanvas) {
+                const ctx1 = wasteCanvas.getContext('2d');
+                chart1Inst = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: allProduction.map(p => p.machine_id),
+                        datasets: [{
+                            label: 'Waste Production (units)',
+                            data: allProduction.map(p => Math.round(p.production_quantity * 0.1)),
+                            backgroundColor: isDark ? 'rgba(240, 154, 144, 0.7)' : 'rgba(162, 62, 53, 0.65)',
+                            borderColor: isDark ? '#F09A90' : '#A23E35',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { labels: { color: textCol, font: { weight: 'bold' } } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: gridCol }, ticks: { color: textCol } },
+                            x: { grid: { display: false }, ticks: { color: textCol } }
+                        }
+                    }
+                });
+            }
+
+            // Efficiency Chart
+            if (effCanvas) {
+                const ctx2 = effCanvas.getContext('2d');
+                chart2Inst = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Efficiency %',
+                            data: [85, 88, 86, 92, 89, 91, 87],
+                            borderColor: greenColor,
+                            backgroundColor: isDark ? 'rgba(139, 197, 161, 0.15)' : 'rgba(56, 108, 83, 0.12)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: greenColor,
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { labels: { color: textCol, font: { weight: 'bold' } } } },
+                        scales: {
+                            y: { min: 80, max: 100, grid: { color: gridCol }, ticks: { color: textCol } },
+                            x: { grid: { display: false }, ticks: { color: textCol } }
+                        }
+                    }
+                });
+            }
+        }
+        window.addEventListener('themechange', initCharts);
+    </script>
+</body>
+</html>
